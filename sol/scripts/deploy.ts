@@ -16,12 +16,23 @@ async function main() {
   const [deployer] = await ethers.getSigners();
   console.log("Deploying contracts with the account: " + deployer.address);
 
-  const Marketplace = await ethers.getContractFactory("Marketplace");
-  const marketplace = await Marketplace.deploy();
+  const NFT = await ethers.getContractFactory("NFT");
+  const nft = await NFT.deploy();
+  await nft.deployed();
 
-  await marketplace.deployed();
+  const Market = await ethers.getContractFactory("Market");
+  const market = await Market.deploy(nft.address);
+  await market.deployed();
 
-  console.log("Marketplace deployed to:", marketplace.address);
+  await nft.setMarket(market.address);
+
+  console.log("NFT deployed to:", nft.address);
+  console.log("Market deployed to:", market.address);
+
+  const collId = "0x23d6317299d5d4ed69147262f8ea73477172918df16c9d2fbdf755ae703833f0";
+  const tokenId = "0xeade8654c28fcb82834c63a71e7edc3bb180b4d932bba605b5a4d8b140f0d25f";
+  await market.createCollection(collId);
+  await market.mintToken(tokenId, collId);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

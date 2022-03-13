@@ -1,19 +1,7 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-
-contract Marketplace is ERC1155 {
-    constructor() ERC1155("ipfs://f0{id}") {}
-
-    function mint(
-        uint256 id,
-        uint256 amount,
-        bytes memory data
-    ) public virtual {
-        _mint(msg.sender, id, amount, data);
-    }
-
+contract Utils {
     function uint2hexstr(uint256 i) public pure returns (string memory) {
         if (i == 0) return "0";
         uint256 j = i;
@@ -33,16 +21,5 @@ contract Marketplace is ERC1155 {
             i = i >> 4;
         }
         return string(bstr);
-    }
-
-    function uri(uint256 _tokenID)
-        public
-        pure
-        override
-        returns (string memory)
-    {
-        string memory hexstringtokenID;
-        hexstringtokenID = uint2hexstr(_tokenID);
-        return string(abi.encodePacked("ipfs://f0", hexstringtokenID));
     }
 }

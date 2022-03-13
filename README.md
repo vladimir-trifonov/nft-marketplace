@@ -32,8 +32,8 @@ Private Key: 0x...
 
 4. Write down the contracts addresses from the console. We will need them later.
 ```
-FW7Token deployed to: 0x...
-FW7Bridge deployed to: 0x...
+NFT deployed to: 0x...
+Market deployed to: 0x...
 ```
 
 5. (Optional) To copy the contracts json files if changed execute `nft-marketplace> ./copy_contracts.sh`.
@@ -41,7 +41,8 @@ FW7Bridge deployed to: 0x...
 6. Set the React app environment variables in `nft-marketplace\web\.env` with the contract address being deployed.
             
 ```Example
-REACT_APP_NFT_MARKETPLACE_CONTRACT_ADDRESS=// The token contract address from `step 2`
+REACT_APP_NFT_CONTRACT_ADDRESS=// The token contract address from `step 4`
+REACT_APP_MARKET_CONTRACT_ADDRESS=// The token contract address from `step 4`
 ```
 
 7. Start the React App.

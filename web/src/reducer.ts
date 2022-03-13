@@ -3,6 +3,8 @@ type StateType = {
   web3Provider?: any
   address?: string
   chainId?: number
+  ownersCollections?: any[]
+  marketCollections?: any[]
 }
 
 export type ActionType =
@@ -24,12 +26,22 @@ export type ActionType =
   | {
     type: "RESET_WEB3_PROVIDER"
   }
+  | {
+    type: "SET_OWNERS_COLLECTIONS"
+    ownersCollections?: StateType["ownersCollections"]
+  }
+  | {
+    type: "SET_MARKET_COLLECTIONS"
+    marketCollections?: StateType["marketCollections"]
+  }
 
 export const initialState: StateType = {
   provider: null,
   web3Provider: null,
   address: undefined,
   chainId: undefined,
+  ownersCollections: [],
+  marketCollections: []
 }
 
 const reducer = (state: StateType = initialState, action: ActionType): StateType => {
@@ -51,6 +63,16 @@ const reducer = (state: StateType = initialState, action: ActionType): StateType
       return {
         ...state,
         chainId: action.chainId,
+      }
+    case "SET_OWNERS_COLLECTIONS":
+      return {
+        ...state,
+        ownersCollections: action.ownersCollections,
+      }
+    case "SET_MARKET_COLLECTIONS":
+      return {
+        ...state,
+        marketCollections: action.marketCollections,
       }
     case "RESET_WEB3_PROVIDER":
       return initialState

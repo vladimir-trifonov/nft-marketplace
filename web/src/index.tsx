@@ -2,6 +2,7 @@ import React from "react"
 import ReactDOM from "react-dom"
 import { ThemeProvider, createTheme } from "@mui/material"
 import { toast, ToastContainer } from 'react-toastify'
+import { common } from '@mui/material/colors'
 
 import "./index.css"
 import App from "./App"
@@ -11,6 +12,12 @@ import 'react-toastify/dist/ReactToastify.css';
 const darkTheme = createTheme({
   palette: {
     mode: "dark",
+    primary: {
+      main: common.white
+    },
+    background: {
+      default: "rgba(26,2,52,1)",
+    }
   },
 })
 
@@ -18,7 +25,7 @@ ReactDOM.render(
   <React.StrictMode>
     <ThemeProvider theme={darkTheme}>
       <App />
-      <ToastContainer theme="dark" style={{ width: "700px" }} position={toast.POSITION.TOP_CENTER} />
+      <ToastContainer style={{ width: "700px" }} position={toast.POSITION.TOP_CENTER} />
     </ThemeProvider>
   </React.StrictMode>,
   document.getElementById("root")
