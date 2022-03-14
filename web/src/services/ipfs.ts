@@ -3,7 +3,7 @@ const CIDTool = require('cid-tool');
 
 const pinata = pinataSDK(process.env.REACT_APP_PINATA_API_KEY as string, process.env.REACT_APP_PINATA_SECRET_API_KEY as string);
 
-export const pinJSONToIPFS = (body: { name: string }): Promise<string | void> => {
+export const pinJSONToIPFS = (body: { name: string, description?: string, image?: string }): Promise<string | void> => {
   const options = {
     pinataOptions: {
       cidVersion: 1

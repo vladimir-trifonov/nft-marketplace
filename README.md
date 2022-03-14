@@ -2,6 +2,7 @@
 
 # Prerequisites
 1. [Node.js](https://nodejs.org/en/) version >= v16.14.0 
+2. [Pinata account](https://www.pinata.cloud/))
 
 ## Development
 
@@ -43,6 +44,8 @@ Market deployed to: 0x...
 ```Example
 REACT_APP_NFT_CONTRACT_ADDRESS=// The token contract address from `step 4`
 REACT_APP_MARKET_CONTRACT_ADDRESS=// The token contract address from `step 4`
+REACT_APP_PINATA_API_KEY=// Pinata api key
+REACT_APP_PINATA_SECRET_API_KEY=// Pinata secret api key
 ```
 
 7. Start the React App.

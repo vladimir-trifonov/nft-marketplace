@@ -105,8 +105,8 @@ contract NFT is ERC1155Supply, Ownable, Utils {
         delete locked[_id];
     }
 
-    function uri(uint256 _Id) public pure override returns (string memory) {
-        string memory hexstringId = uint2hexstr(_Id);
+    function uri(uint256 _id) public pure override returns (string memory) {
+        string memory hexstringId = uint2hex64str(_id, 64);
         return
             string(
                 abi.encodePacked("https://ipfs.io/ipfs/f01551220", hexstringId)

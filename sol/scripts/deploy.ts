@@ -28,11 +28,6 @@ async function main() {
 
   console.log("NFT deployed to:", nft.address);
   console.log("Market deployed to:", market.address);
-
-  const collId = "0x23d6317299d5d4ed69147262f8ea73477172918df16c9d2fbdf755ae703833f0";
-  const tokenId = "0xeade8654c28fcb82834c63a71e7edc3bb180b4d932bba605b5a4d8b140f0d25f";
-  await market.createCollection(collId);
-  await market.mintToken(tokenId, collId);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

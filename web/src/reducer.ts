@@ -5,6 +5,8 @@ type StateType = {
   chainId?: number
   ownersCollections?: any[]
   marketCollections?: any[]
+  marketCollectionsLoading: boolean
+  ownersCollectionsLoading: boolean
 }
 
 export type ActionType =
@@ -18,6 +20,8 @@ export type ActionType =
   | {
     type: "SET_ADDRESS"
     address?: StateType["address"]
+    ownersCollections?: StateType["ownersCollections"]
+    marketCollections?: StateType["marketCollections"]
   }
   | {
     type: "SET_CHAIN_ID"
@@ -27,12 +31,22 @@ export type ActionType =
     type: "RESET_WEB3_PROVIDER"
   }
   | {
-    type: "SET_OWNERS_COLLECTIONS"
-    ownersCollections?: StateType["ownersCollections"]
+    type: "FETCH_OWNERS_COLLECTIONS_START"
+    ownersCollectionsLoading?: StateType["ownersCollectionsLoading"]
   }
   | {
-    type: "SET_MARKET_COLLECTIONS"
+    type: "FETCH_MARKET_COLLECTIONS_START"
+    marketCollectionsLoading?: StateType["marketCollectionsLoading"]
+  }
+  | {
+    type: "FETCH_OWNERS_COLLECTIONS_SUCCESS"
+    ownersCollections?: StateType["ownersCollections"]
+    ownersCollectionsLoading?: StateType["ownersCollectionsLoading"]
+  }
+  | {
+    type: "FETCH_MARKET_COLLECTIONS_SUCCESS"
     marketCollections?: StateType["marketCollections"]
+    marketCollectionsLoading?: StateType["marketCollectionsLoading"]
   }
 
 export const initialState: StateType = {
@@ -40,8 +54,10 @@ export const initialState: StateType = {
   web3Provider: null,
   address: undefined,
   chainId: undefined,
-  ownersCollections: [],
-  marketCollections: []
+  ownersCollections: undefined,
+  marketCollections: undefined,
+  marketCollectionsLoading: false,
+  ownersCollectionsLoading: false
 }
 
 const reducer = (state: StateType = initialState, action: ActionType): StateType => {
@@ -58,21 +74,35 @@ const reducer = (state: StateType = initialState, action: ActionType): StateType
       return {
         ...state,
         address: action.address,
+        marketCollections: undefined,
+        ownersCollections: undefined
       }
     case "SET_CHAIN_ID":
       return {
         ...state,
         chainId: action.chainId,
       }
-    case "SET_OWNERS_COLLECTIONS":
+    case "FETCH_MARKET_COLLECTIONS_START":
       return {
         ...state,
-        ownersCollections: action.ownersCollections,
+        marketCollectionsLoading: true,
       }
-    case "SET_MARKET_COLLECTIONS":
+    case "FETCH_OWNERS_COLLECTIONS_START":
       return {
         ...state,
+        ownersCollectionsLoading: true,
+      }
+    case "FETCH_MARKET_COLLECTIONS_SUCCESS":
+      return {
+        ...state,
+        marketCollectionsLoading: false,
         marketCollections: action.marketCollections,
+      }
+    case "FETCH_OWNERS_COLLECTIONS_SUCCESS":
+      return {
+        ...state,
+        ownersCollectionsLoading: false,
+        ownersCollections: action.ownersCollections,
       }
     case "RESET_WEB3_PROVIDER":
       return initialState

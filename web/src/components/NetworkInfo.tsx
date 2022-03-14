@@ -1,7 +1,7 @@
-import { ellipseAddress } from "../helpers/utilities"
-import Breadcrumbs from "@mui/material/Breadcrumbs"
-import { emphasize, styled } from "@mui/material/styles"
-import Chip from "@mui/material/Chip"
+import { ellipseAddress } from '../helpers/utilities'
+import Breadcrumbs from '@mui/material/Breadcrumbs'
+import { emphasize, styled } from '@mui/material/styles'
+import Chip from '@mui/material/Chip'
 
 const StyledBreadcrumb = styled(Chip)(({ theme }) => {
   return {
@@ -9,10 +9,10 @@ const StyledBreadcrumb = styled(Chip)(({ theme }) => {
     height: theme.spacing(3),
     color: theme.palette.common.black,
     fontWeight: theme.typography.fontWeightRegular,
-    "&:hover, &:focus": {
+    '&:hover, &:focus': {
       backgroundColor: emphasize(theme.palette.common.white, 0.06),
     },
-    "&:active": {
+    '&:active': {
       boxShadow: theme.shadows[1],
       backgroundColor: emphasize(theme.palette.common.white, 0.12),
     },
@@ -23,7 +23,13 @@ type ChainType = {
   name?: string
 }
 
-const NetworkInfo = ({ chainData, address }: { chainData: ChainType, address: string}): JSX.Element => {
+const NetworkInfo = ({
+  chainData,
+  address,
+}: {
+  chainData: ChainType
+  address: string
+}): JSX.Element => {
   return (
     <>
       {address && (
