@@ -2,7 +2,7 @@ import { useCallback, useEffect } from "react"
 import WalletConnectProvider from "@walletconnect/web3-provider"
 import { providers } from "ethers"
 import Web3Modal from "web3modal"
-import { toast } from 'react-toastify'
+import { toast } from "react-toastify"
 
 import { getChainData } from "../helpers/utilities"
 

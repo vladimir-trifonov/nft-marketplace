@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react'
-import Paper from '@mui/material/Paper'
-import Box from '@mui/material/Box'
-import Tab from '@mui/material/Tab'
-import TabContext from '@mui/lab/TabContext'
-import TabList from '@mui/lab/TabList'
-import TabPanel from '@mui/lab/TabPanel'
-import MarketCollections from './MarketCollections'
-import OwnerCollections from './OwnerCollections'
+import { useEffect, useState } from "react"
+import Paper from "@mui/material/Paper"
+import Box from "@mui/material/Box"
+import Tab from "@mui/material/Tab"
+import TabContext from "@mui/lab/TabContext"
+import TabList from "@mui/lab/TabList"
+import TabPanel from "@mui/lab/TabPanel"
+import MarketCollections from "./MarketCollections"
+import OwnerCollections from "./OwnerCollections"
 
 const Marketplace = ({
   address,
@@ -43,11 +43,11 @@ const Marketplace = ({
   ownersCollectionsLoading: boolean
   fetchTokenOffers: any
 }): JSX.Element => {
-  const [tab, setTab] = useState('market')
+  const [tab, setTab] = useState("market")
 
   useEffect(() => {
     if (marketContract && web3Provider && address && !!tab) {
-      if (tab === 'collections') {
+      if (tab === "collections") {
         fetchOwnersCollections()
       } else {
         fetchMarketCollections()
@@ -64,17 +64,17 @@ const Marketplace = ({
     <>
       <Paper
         elevation={0}
-        sx={{ p: 1.5, backgroundColor: 'rgba(26,2,52,0.8)' }}
+        sx={{ p: 1.5, backgroundColor: "rgba(26,2,52,0.8)" }}
       >
         <Box
           sx={{
-            typography: 'body1',
+            typography: "body1",
             minWidth: 1100,
             minHeight: 700,
           }}
         >
           <TabContext value={tab}>
-            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+            <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
               <TabList onChange={handleChangeTab} aria-label="marketplace tabs">
                 <Tab label="Explore Market" value="market" />
                 <Tab label="My Collections" value="collections" />

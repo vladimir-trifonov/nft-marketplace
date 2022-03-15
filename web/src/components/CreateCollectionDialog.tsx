@@ -1,11 +1,11 @@
-import { useRef, useState } from 'react'
-import TextField from '@mui/material/TextField'
-import Button from '@mui/material/Button'
-import Dialog from '@mui/material/Dialog'
-import DialogContent from '@mui/material/DialogContent'
-import DialogActions from '@mui/material/DialogActions'
-import BootstrapDialogTitle from './BootstrapDialogTitle'
-import { pinJSONToIPFS } from '../services/ipfs'
+import { useRef, useState } from "react"
+import TextField from "@mui/material/TextField"
+import Button from "@mui/material/Button"
+import Dialog from "@mui/material/Dialog"
+import DialogContent from "@mui/material/DialogContent"
+import DialogActions from "@mui/material/DialogActions"
+import BootstrapDialogTitle from "./BootstrapDialogTitle"
+import { pinJSONToIPFS } from "../services/ipfs"
 
 const CreateCollectionDialog = ({
   onCloseCreateCollection,
@@ -16,13 +16,13 @@ const CreateCollectionDialog = ({
   onCreateCollection: any
   openCreateCollection: any
 }): JSX.Element => {
-  const [collectionTitle, setCollectionTitle] = useState('')
-  const collectionTitleRef = useRef('')
+  const [collectionTitle, setCollectionTitle] = useState("")
+  const collectionTitleRef = useRef("")
 
   const handleCreateCollection = async () => {
     onCloseCreateCollection()
     const id = await pinJSONToIPFS({ name: collectionTitle })
-    setCollectionTitle('')
+    setCollectionTitle("")
     if (id) onCreateCollection(id)
   }
 
@@ -31,10 +31,10 @@ const CreateCollectionDialog = ({
       onClose={onCloseCreateCollection}
       aria-labelledby="create-collection-dialog-title"
       open={openCreateCollection}
-      sx={{ backgroundColor: 'rgba(26,2,52,0.3)' }}
+      sx={{ backgroundColor: "rgba(26,2,52,0.3)" }}
     >
       <BootstrapDialogTitle
-        sx={{ backgroundColor: 'rgba(26,2,52,0.7)' }}
+        sx={{ backgroundColor: "rgba(26,2,52,0.7)" }}
         id="create-collection-dialog-title"
         onClose={onCloseCreateCollection}
       >
@@ -42,7 +42,7 @@ const CreateCollectionDialog = ({
       </BootstrapDialogTitle>
       <DialogContent
         dividers
-        sx={{ backgroundColor: 'rgba(26,2,52,0.7)', minWidth: 400 }}
+        sx={{ backgroundColor: "rgba(26,2,52,0.7)", minWidth: 400 }}
       >
         <TextField
           required
@@ -56,9 +56,9 @@ const CreateCollectionDialog = ({
           }}
         />
       </DialogContent>
-      <DialogActions sx={{ backgroundColor: 'rgba(26,2,52,0.7)' }}>
+      <DialogActions sx={{ backgroundColor: "rgba(26,2,52,0.7)" }}>
         <Button
-          disabled={collectionTitle === ''}
+          disabled={collectionTitle === ""}
           autoFocus
           onClick={handleCreateCollection}
         >

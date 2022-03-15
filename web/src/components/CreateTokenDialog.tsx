@@ -1,15 +1,15 @@
-import { useRef, useState } from 'react'
-import TextField from '@mui/material/TextField'
-import Button from '@mui/material/Button'
-import Dialog from '@mui/material/Dialog'
-import DialogContent from '@mui/material/DialogContent'
-import DialogActions from '@mui/material/DialogActions'
-import BootstrapDialogTitle from './BootstrapDialogTitle'
-import { pinJSONToIPFS } from '../services/ipfs'
-import { ImageSelect } from './ImageSelect'
-import { create as ipfsHttpClient } from 'ipfs-http-client'
+import { useRef, useState } from "react"
+import TextField from "@mui/material/TextField"
+import Button from "@mui/material/Button"
+import Dialog from "@mui/material/Dialog"
+import DialogContent from "@mui/material/DialogContent"
+import DialogActions from "@mui/material/DialogActions"
+import BootstrapDialogTitle from "./BootstrapDialogTitle"
+import { pinJSONToIPFS } from "../services/ipfs"
+import { ImageSelect } from "./ImageSelect"
+import { create as ipfsHttpClient } from "ipfs-http-client"
 
-const ipfs = ipfsHttpClient({ url: 'https://ipfs.infura.io:5001/api/v0' })
+const ipfs = ipfsHttpClient({ url: "https://ipfs.infura.io:5001/api/v0" })
 
 const CreateTokenDialog = ({
   openCreateToken,
@@ -22,11 +22,11 @@ const CreateTokenDialog = ({
   onCloseCreateToken: any
   collection: any
 }): JSX.Element => {
-  const [tokenTitle, setTokenTitle] = useState('')
-  const tokenTitleRef = useRef('')
-  const [tokenDesc, setTokenDesc] = useState('')
-  const tokenDescRef = useRef('')
-  const [image, setImage] = useState('')
+  const [tokenTitle, setTokenTitle] = useState("")
+  const tokenTitleRef = useRef("")
+  const [tokenDesc, setTokenDesc] = useState("")
+  const tokenDescRef = useRef("")
+  const [image, setImage] = useState("")
 
   const handleCreateToken = async () => {
     const added = await ipfs.add(image as any)
@@ -35,8 +35,8 @@ const CreateTokenDialog = ({
     onCloseCreateToken()
     const id = await pinJSONToIPFS({ name: tokenTitle, description: tokenDesc, image: url })
 
-    setTokenTitle('')
-    setTokenDesc('')
+    setTokenTitle("")
+    setTokenDesc("")
 
     if (id && collection) onCreateToken(id, (collection as any).id)
   }
@@ -46,10 +46,10 @@ const CreateTokenDialog = ({
       onClose={onCloseCreateToken}
       aria-labelledby="create-token-dialog-title"
       open={openCreateToken}
-      sx={{ backgroundColor: 'rgba(26,2,52,0.3)' }}
+      sx={{ backgroundColor: "rgba(26,2,52,0.3)" }}
     >
       <BootstrapDialogTitle
-        sx={{ backgroundColor: 'rgba(26,2,52,0.7)' }}
+        sx={{ backgroundColor: "rgba(26,2,52,0.7)" }}
         id="create-token-dialog-title"
         onClose={onCloseCreateToken}
       >
@@ -58,10 +58,10 @@ const CreateTokenDialog = ({
       <DialogContent
         dividers
         sx={{
-          backgroundColor: 'rgba(26,2,52,0.7)',
+          backgroundColor: "rgba(26,2,52,0.7)",
           minWidth: 400,
-          display: 'flex',
-          flexDirection: 'column',
+          display: "flex",
+          flexDirection: "column",
         }}
       >
         <TextField
@@ -89,9 +89,9 @@ const CreateTokenDialog = ({
         />
         <ImageSelect image={image} setImage={setImage} />
       </DialogContent>
-      <DialogActions sx={{ backgroundColor: 'rgba(26,2,52,0.7)' }}>
+      <DialogActions sx={{ backgroundColor: "rgba(26,2,52,0.7)" }}>
         <Button
-          disabled={tokenTitle === '' || tokenDesc === '' || !image}
+          disabled={tokenTitle === "" || tokenDesc === "" || !image}
           autoFocus
           onClick={handleCreateToken}
         >

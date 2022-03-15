@@ -1,10 +1,10 @@
-import { useRef, useState } from 'react'
-import TextField from '@mui/material/TextField'
-import Button from '@mui/material/Button'
-import Dialog from '@mui/material/Dialog'
-import DialogContent from '@mui/material/DialogContent'
-import DialogActions from '@mui/material/DialogActions'
-import BootstrapDialogTitle from './BootstrapDialogTitle'
+import { useRef, useState } from "react"
+import TextField from "@mui/material/TextField"
+import Button from "@mui/material/Button"
+import Dialog from "@mui/material/Dialog"
+import DialogContent from "@mui/material/DialogContent"
+import DialogActions from "@mui/material/DialogActions"
+import BootstrapDialogTitle from "./BootstrapDialogTitle"
 
 const MakeTokenOfferDialog = ({
   openMakeAnOffer,
@@ -17,12 +17,12 @@ const MakeTokenOfferDialog = ({
   onCloseMakeAnOffer: any
   token: any
 }): JSX.Element => {
-  const [offerPrice, setOfferPrice] = useState('')
-  const offerPriceRef = useRef('')
+  const [offerPrice, setOfferPrice] = useState("")
+  const offerPriceRef = useRef("")
 
   const handleMakeAnOffer = async () => {
     onCloseMakeAnOffer()
-    setOfferPrice('')
+    setOfferPrice("")
     onMakeTokenOffer(token.id, offerPrice)
   }
 
@@ -31,10 +31,10 @@ const MakeTokenOfferDialog = ({
       onClose={onCloseMakeAnOffer}
       aria-labelledby="make-token-offer-dialog-title"
       open={openMakeAnOffer}
-      sx={{ backgroundColor: 'rgba(26,2,52,0.3)' }}
+      sx={{ backgroundColor: "rgba(26,2,52,0.3)" }}
     >
       <BootstrapDialogTitle
-        sx={{ backgroundColor: 'rgba(26,2,52,0.7)' }}
+        sx={{ backgroundColor: "rgba(26,2,52,0.7)" }}
         id="make-token-offer-dialog-title"
         onClose={onCloseMakeAnOffer}
       >
@@ -42,7 +42,7 @@ const MakeTokenOfferDialog = ({
       </BootstrapDialogTitle>
       <DialogContent
         dividers
-        sx={{ backgroundColor: 'rgba(26,2,52,0.7)', minWidth: 400 }}
+        sx={{ backgroundColor: "rgba(26,2,52,0.7)", minWidth: 400 }}
       >
         <TextField
           required
@@ -56,9 +56,9 @@ const MakeTokenOfferDialog = ({
           }}
         />
       </DialogContent>
-      <DialogActions sx={{ backgroundColor: 'rgba(26,2,52,0.7)' }}>
+      <DialogActions sx={{ backgroundColor: "rgba(26,2,52,0.7)" }}>
         <Button
-          disabled={offerPrice === ''}
+          disabled={offerPrice === ""}
           autoFocus
           onClick={handleMakeAnOffer}
         >

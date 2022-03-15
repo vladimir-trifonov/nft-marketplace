@@ -1,6 +1,6 @@
 import NFT from "../constants/abis/NFT.json"
 import Market from "../constants/abis/Market.json"
-import { toast } from 'react-toastify'
+import { toast } from "react-toastify"
 import { useCallback, useEffect, useState } from "react"
 import { getContract } from "../helpers/ethers"
 import { groupBy, ellipseAddress } from "../helpers/utilities"

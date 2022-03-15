@@ -1,21 +1,21 @@
-import { useEffect, useState } from 'react'
-import { styled } from '@mui/material/styles'
-import ListItem from '@mui/material/ListItem'
-import List from '@mui/material/List'
-import Button from '@mui/material/Button'
-import ListItemText from '@mui/material/ListItemText'
-import Grid from '@mui/material/Grid'
-import Typography from '@mui/material/Typography'
-import Card from '@mui/material/Card'
-import CardActions from '@mui/material/CardActions'
-import CardContent from '@mui/material/CardContent'
-import CardMedia from '@mui/material/CardMedia'
-import CreateCollectionDialog from './CreateCollectionDialog'
-import CreateTokenDialog from './CreateTokenDialog'
-import AcceptTokenOfferDialog from './AcceptTokenOfferDialog'
-import LinearProgress from '@mui/material/LinearProgress'
+import { useEffect, useState } from "react"
+import { styled } from "@mui/material/styles"
+import ListItem from "@mui/material/ListItem"
+import List from "@mui/material/List"
+import Button from "@mui/material/Button"
+import ListItemText from "@mui/material/ListItemText"
+import Grid from "@mui/material/Grid"
+import Typography from "@mui/material/Typography"
+import Card from "@mui/material/Card"
+import CardActions from "@mui/material/CardActions"
+import CardContent from "@mui/material/CardContent"
+import CardMedia from "@mui/material/CardMedia"
+import CreateCollectionDialog from "./CreateCollectionDialog"
+import CreateTokenDialog from "./CreateTokenDialog"
+import AcceptTokenOfferDialog from "./AcceptTokenOfferDialog"
+import LinearProgress from "@mui/material/LinearProgress"
 
-const ListWrapper = styled('div')(() => ({
+const ListWrapper = styled("div")(() => ({
   backgroundColor: "transparent"
 }))
 
@@ -89,24 +89,24 @@ const OwnerCollections = ({
                   sx={{
                     borderRadius: 1,
                     border: "1px rgba(255,255,255,0.5) solid",
-                    width: '100%',
-                    overflow: 'hidden',
-                    position: 'relative',
-                    backgroundColor: 'rgba(46,24,70,0.3)'
+                    width: "100%",
+                    overflow: "hidden",
+                    position: "relative",
+                    backgroundColor: "rgba(46,24,70,0.3)"
                   }}
                 >
                   {ownersCollections?.map((item: any) => (
                     <ListItem
                       sx={{
-                        cursor: 'pointer',
+                        cursor: "pointer",
                         backgroundColor:
                           item.id === (currentCollection as any)?.id
-                            ? 'rgba(255,255,255,0.4)'
-                            : 'rgba(46,24,70,0.7)',
+                            ? "rgba(255,255,255,0.4)"
+                            : "rgba(46,24,70,0.7)",
                         color:
                           item.id === (currentCollection as any)?.id
-                            ? '#000000'
-                            : '#ffffff',
+                            ? "#000000"
+                            : "#ffffff",
                       }}
                       key={item.id}
                     >
@@ -151,9 +151,9 @@ const OwnerCollections = ({
                       sx={{
                         borderRadius: 1,
                         border: "1px rgba(255,255,255,0.5) solid",
-                        width: '100%',
-                        height: '100%',
-                        backgroundColor: 'rgba(46,24,70,0.7)'
+                        width: "100%",
+                        height: "100%",
+                        backgroundColor: "rgba(46,24,70,0.7)"
                       }}
                     >
                       <CardMedia
