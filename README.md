@@ -4,6 +4,8 @@
 1. [Node.js](https://nodejs.org/en/) version >= v16.14.0 
 2. [Pinata account](https://www.pinata.cloud/))
 
+## Live Test - [Rinkeby Flow](DEV_LIVE_TEST.md)
+
 ## Development
 
 ### Installation

@@ -116,7 +116,7 @@ const useWeb3Contracts = (state: any, dispatch: any): any => {
     }
   }
 
-  const fetchMarketCollections = async () => {
+  const fetchMarketCollections = useCallback(async () => {
     if (marketCollectionsLoading) return
 
     dispatch({
@@ -179,9 +179,9 @@ const useWeb3Contracts = (state: any, dispatch: any): any => {
       toast.info(e.message)
       console.warn(e)
     }
-  }
+  }, [dispatch, marketCollectionsLoading, marketContract, nftContract])
 
-  const fetchOwnersCollections = async () => {
+  const fetchOwnersCollections = useCallback(async () => {
     if (ownersCollectionsLoading) return
 
     dispatch({
@@ -241,10 +241,52 @@ const useWeb3Contracts = (state: any, dispatch: any): any => {
       toast.info(e.message)
       console.warn(e)
     }
-  }
+  }, [dispatch, marketContract, nftContract, ownersCollectionsLoading])
+
+  const onMarketUpdated = useCallback(() => {
+    fetchMarketCollections()
+    fetchOwnersCollections()
+  }, [fetchMarketCollections, fetchOwnersCollections])
+
+  useEffect(() => {
+    if (address && marketContract?.on) {
+      const onCollectionCreatedFilter = marketContract.filters.CollectionCreated(address)
+      marketContract.on(onCollectionCreatedFilter, onMarketUpdated)
+      const onTokenListedForSaleFilter = marketContract.filters.TokenListedForSale(address)
+      marketContract.on(onTokenListedForSaleFilter, onMarketUpdated)
+      const onTokenMintedFilter = marketContract.filters.TokenMinted(address)
+      marketContract.on(onTokenMintedFilter, onMarketUpdated)
+      const onTokenSoldFilter = marketContract.filters.TokenSold()
+      marketContract.on(onTokenSoldFilter, onMarketUpdated)
+      const onOfferCreatedFilter = marketContract.filters.OfferCreated(address)
+      marketContract.on(onOfferCreatedFilter, onMarketUpdated)
+      const onOfferAcceptedFilter = marketContract.filters.OfferAccepted(address)
+      marketContract.on(onOfferAcceptedFilter, onMarketUpdated)
+
+      return () => {
+        if (marketContract.off) {
+          marketContract.off(onCollectionCreatedFilter, onMarketUpdated)
+          marketContract.off(onTokenListedForSaleFilter, onMarketUpdated)
+          marketContract.off(onTokenMintedFilter, onMarketUpdated)
+          marketContract.off(onTokenSoldFilter, onMarketUpdated)
+          marketContract.off(onOfferCreatedFilter, onMarketUpdated)
+          marketContract.off(onOfferAcceptedFilter, onMarketUpdated)
+        }
+      }
+    }
+  }, [address, marketContract, onMarketUpdated])
 
   return [
-    { onCreateCollection, onCreateToken, fetchOwnersCollections, fetchMarketCollections, onBuyToken, onListTokenForSale, onMakeTokenOffer, onAcceptTokenOffer, fetchTokenOffers },
+    { onCreateCollection, 
+      onCreateToken, 
+      fetchOwnersCollections, 
+      fetchMarketCollections, 
+      onBuyToken, 
+      onListTokenForSale, 
+      onMakeTokenOffer, 
+      onAcceptTokenOffer, 
+      fetchTokenOffers 
+    },
     { address, marketContract, ownersCollections, marketCollections }]
 }
 

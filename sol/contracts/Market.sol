@@ -28,39 +28,37 @@ contract Market is ERC1155Receiver, ReentrancyGuard, Ownable, Utils {
     uint256[] ownedTokensIds;
     Counters.Counter private tokensCount;
 
-    event TokenListedForSale(address indexed seller, uint256 tokenId);
-
-    event CollectionCreated(
-        uint256 indexed collectionId,
-        address indexed owner
-    );
+    event CollectionCreated(address indexed owner, uint256 collectionId);
 
     event TokenMinted(
+        address indexed seller,
         uint256 indexed collectionId,
-        uint256 indexed tokenId,
-        uint256 price,
-        address seller
+        uint256 tokenId,
+        uint256 price
     );
 
     event TokenSold(
         address indexed buyer,
         address indexed seller,
+        uint256 indexed tokenId,
         uint256 collectionId,
-        uint256 tokenId,
         uint256 price
     );
 
+    event TokenListedForSale(address indexed seller, uint256 indexed tokenId);
+
     event OfferCreated(
-        address indexed offeror,
         address indexed seller,
-        uint256 tokenId,
+        address indexed offeror,
+        uint256 indexed tokenId,
+        uint256 offerId,
         uint256 price
     );
 
     event OfferAccepted(
         address indexed seller,
         address indexed buyer,
-        uint256 tokenId,
+        uint256 indexed tokenId,
         uint256 price
     );
 
@@ -157,10 +155,16 @@ contract Market is ERC1155Receiver, ReentrancyGuard, Ownable, Utils {
         uint256 allCollectionsCount = collectionsCount.current();
 
         // The collections count of the requesting user
-        uint256 senderCollectionsCount = collectionsIdsByOwner[msg.sender].length;
+        uint256 senderCollectionsCount = collectionsIdsByOwner[msg.sender]
+            .length;
 
         // All the collections count minus the requesting user collections count
-        uint256 marketCollectionsCount = collectionsCount.current() - (ownerHasCollections[msg.sender] == true ? senderCollectionsCount : 0);
+        uint256 marketCollectionsCount = collectionsCount.current() -
+            (
+                ownerHasCollections[msg.sender] == true
+                    ? senderCollectionsCount
+                    : 0
+            );
 
         // Initialize empty array for the collections data
         Collection[] memory collections = new Collection[](
@@ -183,12 +187,10 @@ contract Market is ERC1155Receiver, ReentrancyGuard, Ownable, Utils {
                 ];
 
                 // This is the actual tokens count for the current collection, i.e. minted tokens minus sold tokens
-                uint256 currentCollectionTokensCount = collectionIdToCollection[collectionId]
-                        .tokensCount
-                        .current() -
-                        collectionIdToCollection[collectionId]
-                            .tokensSold
-                            .current();
+                uint256 currentCollectionTokensCount = collectionIdToCollection[
+                    collectionId
+                ].tokensCount.current() -
+                    collectionIdToCollection[collectionId].tokensSold.current();
 
                 // Initialize empty nested array for the tokens from the current collection
                 collectionsTokens[currentCollectionIndex] = new Token[](
@@ -196,12 +198,15 @@ contract Market is ERC1155Receiver, ReentrancyGuard, Ownable, Utils {
                 );
 
                 uint256 currentTokenIndex = 0;
-                uint256 allTimeCollectionTokensCount = collections[currentCollectionIndex].tokensIds.length;
+                uint256 allTimeCollectionTokensCount = collections[
+                    currentCollectionIndex
+                ].tokensIds.length;
 
                 // Iterates through all the existing tokens and takes these
                 // which are part of the current collection
                 for (uint256 k = 0; k < allTimeCollectionTokensCount; k++) {
-                    uint256 tokenId = collections[currentCollectionIndex].tokensIds[k];
+                    uint256 tokenId = collections[currentCollectionIndex]
+                        .tokensIds[k];
                     // Check if the token is part of the current collection
                     if (
                         tokenIdToToken[tokenId].seller ==
@@ -223,12 +228,11 @@ contract Market is ERC1155Receiver, ReentrancyGuard, Ownable, Utils {
         }
 
         uint256 currentTokenOwned = 0;
-        uint256 ownedTokensCount = ownedTokensIds.length - ownedTokensCountByOwner[msg.sender].current();
+        uint256 ownedTokensCount = ownedTokensIds.length -
+            ownedTokensCountByOwner[msg.sender].current();
         // This array will contain the token which is not part of a collection,
         // and not bought by the requesting user i.e. being bought by another user
-        Token[] memory ownedTokens = new Token[](
-            ownedTokensCount
-        );
+        Token[] memory ownedTokens = new Token[](ownedTokensCount);
 
         for (uint256 i = 0; i < ownedTokensIds.length; i++) {
             // Check if the token is being sold and the requesting user doesn't own it
@@ -321,10 +325,7 @@ contract Market is ERC1155Receiver, ReentrancyGuard, Ownable, Utils {
         view
         returns (Offer[] memory)
     {
-        require(
-            tokenIdToToken[_tokenId].exists == true,
-            "Market: wrong token"
-        );
+        require(tokenIdToToken[_tokenId].exists == true, "Market: wrong token");
         require(
             msg.sender == tokenIdToToken[_tokenId].seller,
             "Market: not a token owner"
@@ -355,7 +356,7 @@ contract Market is ERC1155Receiver, ReentrancyGuard, Ownable, Utils {
 
         collectionsCount.increment();
 
-        emit CollectionCreated(_collectionId, msg.sender);
+        emit CollectionCreated(msg.sender, _collectionId);
     }
 
     function mintToken(uint256 _tokenId, uint256 _collectionId)
@@ -387,7 +388,7 @@ contract Market is ERC1155Receiver, ReentrancyGuard, Ownable, Utils {
 
         tokensCount.increment();
 
-        emit TokenMinted(_collectionId, _tokenId, TOKEN_PRICE, msg.sender);
+        emit TokenMinted(msg.sender, _collectionId, _tokenId, TOKEN_PRICE);
     }
 
     function buyToken(uint256 _tokenId, uint256 _collectionId)
@@ -439,8 +440,8 @@ contract Market is ERC1155Receiver, ReentrancyGuard, Ownable, Utils {
         emit TokenSold(
             msg.sender,
             tokenIdToToken[_tokenId].seller,
-            _collectionId,
             _tokenId,
+            _collectionId,
             msg.value
         );
     }
@@ -484,8 +485,9 @@ contract Market is ERC1155Receiver, ReentrancyGuard, Ownable, Utils {
         );
         require(msg.value > 0, "Market: offer price must be at least one wei");
 
+        uint256 offerId = tokenIdToToken[_tokenId].offersCount.current();
         tokenIdToOffers[_tokenId].push(
-            Offer(tokenIdToToken[_tokenId].offersCount.current(), payable(msg.sender), msg.value, true)
+            Offer(offerId, payable(msg.sender), msg.value, true)
         );
 
         tokenIdToToken[_tokenId].offersCount.increment();
@@ -495,9 +497,10 @@ contract Market is ERC1155Receiver, ReentrancyGuard, Ownable, Utils {
         lockedAmount += msg.value;
 
         emit OfferCreated(
-            msg.sender,
             tokenIdToToken[_tokenId].seller,
+            msg.sender,
             _tokenId,
+            offerId,
             msg.value
         );
     }
