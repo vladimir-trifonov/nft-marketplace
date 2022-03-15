@@ -6,6 +6,10 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
 import BootstrapDialogTitle from './BootstrapDialogTitle'
 import { pinJSONToIPFS } from '../services/ipfs'
+import { ImageSelect } from './ImageSelect'
+import { create as ipfsHttpClient } from 'ipfs-http-client'
+
+const ipfs = ipfsHttpClient({ url: 'https://ipfs.infura.io:5001/api/v0' })
 
 const CreateTokenDialog = ({
   openCreateToken,
@@ -22,16 +26,19 @@ const CreateTokenDialog = ({
   const tokenTitleRef = useRef('')
   const [tokenDesc, setTokenDesc] = useState('')
   const tokenDescRef = useRef('')
+  const [image, setImage] = useState('')
 
   const handleCreateToken = async () => {
+    const added = await ipfs.add(image as any)
+    const url = `https://ipfs.infura.io/ipfs/${added.path}`
+
     onCloseCreateToken()
-    const id = await pinJSONToIPFS({ name: tokenTitle, description: tokenDesc })
+    const id = await pinJSONToIPFS({ name: tokenTitle, description: tokenDesc, image: url })
 
     setTokenTitle('')
     setTokenDesc('')
 
-    if (id && collection)
-      onCreateToken(id, (collection as any).id)
+    if (id && collection) onCreateToken(id, (collection as any).id)
   }
 
   return (
@@ -50,7 +57,12 @@ const CreateTokenDialog = ({
       </BootstrapDialogTitle>
       <DialogContent
         dividers
-        sx={{ backgroundColor: 'rgba(26,2,52,0.7)', minWidth: 400, display: "flex", flexDirection: "column" }}
+        sx={{
+          backgroundColor: 'rgba(26,2,52,0.7)',
+          minWidth: 400,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
       >
         <TextField
           required
@@ -73,12 +85,13 @@ const CreateTokenDialog = ({
           onChange={() => {
             setTokenDesc((tokenDescRef.current as any)?.value)
           }}
-          sx={{ mt: 1 }}
+          sx={{ mt: 1, mb: 2 }}
         />
+        <ImageSelect image={image} setImage={setImage} />
       </DialogContent>
       <DialogActions sx={{ backgroundColor: 'rgba(26,2,52,0.7)' }}>
         <Button
-          disabled={tokenTitle === '' || tokenDesc === ''}
+          disabled={tokenTitle === '' || tokenDesc === '' || !image}
           autoFocus
           onClick={handleCreateToken}
         >

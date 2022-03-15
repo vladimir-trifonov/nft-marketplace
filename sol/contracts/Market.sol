@@ -38,8 +38,8 @@ contract Market is ERC1155Receiver, ReentrancyGuard, Ownable, Utils {
     );
 
     event TokenSold(
-        address indexed buyer,
         address indexed seller,
+        address indexed buyer,
         uint256 indexed tokenId,
         uint256 collectionId,
         uint256 price
@@ -438,8 +438,8 @@ contract Market is ERC1155Receiver, ReentrancyGuard, Ownable, Utils {
         ownedTokensCountByOwner[msg.sender].increment();
 
         emit TokenSold(
-            msg.sender,
             tokenIdToToken[_tokenId].seller,
+            msg.sender,
             _tokenId,
             _collectionId,
             msg.value

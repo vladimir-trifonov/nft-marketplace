@@ -27,38 +27,42 @@
 Private Key: 0x...
 ```
 
-3. Deploy NFT Marketplace on Hadrhat node.
+3. Compile the contracts
 
-`nft-marketplace> cd sol`
+`evm-token-bridge> cd sol`
+   
+`evm-token-bridge> npx hardhat compile`
+
+4. Deploy NFT Marketplace on Hadrhat node.
             
 `nft-marketplace\sol> npx hardhat run --network localhost scripts/deploy.ts`
 
-4. Write down the contracts addresses from the console. We will need them later.
+5. Write down the contracts addresses from the console. We will need them later.
 ```
 NFT deployed to: 0x...
 Market deployed to: 0x...
 ```
 
-5. (Optional) To copy the contracts json files if changed execute `nft-marketplace> ./copy_contracts.sh`.
+6. (Optional) To copy the contracts json files if changed execute `nft-marketplace> ./copy_contracts.sh`.
 
-6. Set the React app environment variables in `nft-marketplace\web\.env` with the contract address being deployed.
+7. Set the React app environment variables in `nft-marketplace\web\.env` with the contract address being deployed.
             
 ```Example
-REACT_APP_NFT_CONTRACT_ADDRESS=// The token contract address from `step 4`
-REACT_APP_MARKET_CONTRACT_ADDRESS=// The token contract address from `step 4`
+REACT_APP_NFT_CONTRACT_ADDRESS=// The token contract address from `step 5`
+REACT_APP_MARKET_CONTRACT_ADDRESS=// The token contract address from `step 5`
 REACT_APP_PINATA_API_KEY=// Pinata api key
 REACT_APP_PINATA_SECRET_API_KEY=// Pinata secret api key
 ```
 
-7. Start the React App.
+8. Start the React App.
             
 `nft-marketplace> cd web`
 
 `nft-marketplace\web> yarn start`
 
-8. Setup [Metamask by importing the account](https://metamask.zendesk.com/hc/en-us/articles/360015489331-How-to-import-an-Account) for Hardhat with the private key from `step 2`.
+9. Setup [Metamask by importing the account](https://metamask.zendesk.com/hc/en-us/articles/360015489331-How-to-import-an-Account) for Hardhat with the private key from `step 2`.
   
-9. Setup [Metamask by adding the network](https://metamask.zendesk.com/hc/en-us/articles/360043227612-How-to-add-a-custom-network-RPC) for Hardhat.
+10. Setup [Metamask by adding the network](https://metamask.zendesk.com/hc/en-us/articles/360043227612-How-to-add-a-custom-network-RPC) for Hardhat.
 
 ```
 Network Name: Hardhat localhost:8545

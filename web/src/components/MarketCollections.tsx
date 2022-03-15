@@ -9,12 +9,12 @@ import Typography from '@mui/material/Typography'
 import Card from '@mui/material/Card'
 import CardActions from '@mui/material/CardActions'
 import CardContent from '@mui/material/CardContent'
-// import CardMedia from '@mui/material/CardMedia'
+import CardMedia from '@mui/material/CardMedia'
 import MakeTokenOfferDialog from './MakeTokenOfferDialog'
 import LinearProgress from '@mui/material/LinearProgress'
 
-const ListWrapper = styled('div')(({ theme }) => ({
-  backgroundColor: theme.palette.background.paper,
+const ListWrapper = styled('div')(() => ({
+  backgroundColor: "transparent"
 }))
 
 const MarketCollections = ({
@@ -62,10 +62,12 @@ const MarketCollections = ({
               {!!marketCollections?.length && (
                 <List
                   sx={{
+                    borderRadius: 1,
+                    border: "1px rgba(255,255,255,0.5) solid",
                     width: '100%',
                     overflow: 'hidden',
                     position: 'relative',
-                    backgroundColor: '#2e1846',
+                    backgroundColor: 'rgba(46,24,70,0.3)'
                   }}
                 >
                   {marketCollections?.map((item: any) => (
@@ -74,8 +76,8 @@ const MarketCollections = ({
                         cursor: 'pointer',
                         backgroundColor:
                           item.id === (currentMarketCollection as any)?.id
-                            ? 'rgba(255,255,255,0.5)'
-                            : 'rgb(46,24,70)',
+                            ? 'rgba(255,255,255,0.4)'
+                            : 'rgba(46,24,70,0.7)',
                         color:
                           item.id === (currentMarketCollection as any)?.id
                             ? '#000000'
@@ -106,17 +108,19 @@ const MarketCollections = ({
                   <Grid key={item.id} height="240" xs={4} item>
                     <Card
                       sx={{
+                        borderRadius: 1,
+                        border: "1px rgba(255,255,255,0.5) solid",
                         width: '100%',
                         height: '100%',
-                        backgroundColor: '#2e1846',
+                        backgroundColor: 'rgba(46,24,70,0.7)'
                       }}
                     >
-                      {/* <CardMedia
+                      <CardMedia
                         component="img"
-                        height="140"
+                        height="200"
                         image={item.image}
                         alt={`${item.name} token`}
-                      /> */}
+                      />
                       <CardContent>
                         <Typography gutterBottom variant="h5" component="div">
                           {item.name}

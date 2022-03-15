@@ -7,17 +7,9 @@ body {
     sans-serif;
 }
 
-/* body:before {
-  content: "";
-  display: block;
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  left: 0;
-  top: 0;
-  z-index: -1;
-  background-color: rgba(255, 255, 255, 0.7);
-} */
+:root {
+  --toastify-color-progress-info: #bb86fc!important;
+}
 
 * {
   box-sizing: border-box;

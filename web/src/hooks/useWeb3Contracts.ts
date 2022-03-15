@@ -10,7 +10,6 @@ import { utils } from "ethers"
 const nftContractAddress = process.env.REACT_APP_NFT_CONTRACT_ADDRESS as string
 const marketContractAddress = process.env.REACT_APP_MARKET_CONTRACT_ADDRESS as string
 const zeroAddr = "0x0000000000000000000000000000000000000000"
-const gasLimit = 6721975
 
 const useWeb3Contracts = (state: any, dispatch: any): any => {
 
@@ -44,7 +43,7 @@ const useWeb3Contracts = (state: any, dispatch: any): any => {
 
   const onCreateCollection = async (id: string) => {
     try {
-      const transaction = await marketContract.createCollection(id, { gasLimit })
+      const transaction = await marketContract.createCollection(id)
       await transaction.wait()
     } catch (e: any) {
       toast.info(e.message)
@@ -54,7 +53,7 @@ const useWeb3Contracts = (state: any, dispatch: any): any => {
 
   const onCreateToken = async (id: string, collectionId: string) => {
     try {
-      const transaction = await marketContract.mintToken(id, collectionId, { gasLimit })
+      const transaction = await marketContract.mintToken(id, collectionId)
       await transaction.wait()
     } catch (e: any) {
       toast.info(e.message)
@@ -64,7 +63,7 @@ const useWeb3Contracts = (state: any, dispatch: any): any => {
 
   const onBuyToken = async (tokenId: string, price: any, collectionId: string) => {
     try {
-      const transaction = await marketContract.buyToken(tokenId, collectionId, { gasLimit, value: price })
+      const transaction = await marketContract.buyToken(tokenId, collectionId, { value: price })
       await transaction.wait()
     } catch (e: any) {
       toast.info(e.message)
@@ -74,7 +73,7 @@ const useWeb3Contracts = (state: any, dispatch: any): any => {
 
   const onMakeTokenOffer = async (tokenId: string, price: string) => {
     try {
-      const transaction = await marketContract.makeOffer(tokenId, { gasLimit, value: utils.parseEther(price.toString()) })
+      const transaction = await marketContract.makeOffer(tokenId, { value: utils.parseEther(price.toString()) })
       await transaction.wait()
     } catch (e: any) {
       toast.info(e.message)
@@ -84,7 +83,7 @@ const useWeb3Contracts = (state: any, dispatch: any): any => {
 
   const onListTokenForSale = async (tokenId: string) => {
     try {
-      const transaction = await marketContract.listTokenForSale(tokenId, { gasLimit })
+      const transaction = await marketContract.listTokenForSale(tokenId)
       await transaction.wait()
     } catch (e: any) {
       toast.info(e.message)
@@ -94,7 +93,7 @@ const useWeb3Contracts = (state: any, dispatch: any): any => {
 
   const onAcceptTokenOffer = async (tokenId: string, offerId: number) => {
     try {
-      const transaction = await marketContract.acceptOffer(tokenId, offerId, { gasLimit })
+      const transaction = await marketContract.acceptOffer(tokenId, offerId)
       await transaction.wait()
     } catch (e: any) {
       toast.info(e.message)
@@ -104,7 +103,7 @@ const useWeb3Contracts = (state: any, dispatch: any): any => {
 
   const fetchTokenOffers = async (tokenId: string) => {
     try {
-      const tokenOffers = await marketContract.fetchTokenOffers(tokenId, { gasLimit })
+      const tokenOffers = await marketContract.fetchTokenOffers(tokenId)
       return tokenOffers?.map((offer: any, i: number) => ({
         id: offer[0],
         offeror: offer[1],
@@ -137,6 +136,7 @@ const useWeb3Contracts = (state: any, dispatch: any): any => {
             return {
               id: token[1].toString(),
               name: tokenMeta.data.name,
+              image: tokenMeta.data.image,
               description: tokenMeta.data.description,
               price: token[2],
               forSale: token[3] !== zeroAddr
@@ -162,6 +162,7 @@ const useWeb3Contracts = (state: any, dispatch: any): any => {
               return {
                 id: token[1].toString(),
                 name: tokenMeta.data.name,
+                image: tokenMeta.data.image,
                 description: tokenMeta.data.description,
                 acceptOffers: token[3] !== zeroAddr
               }
@@ -202,6 +203,7 @@ const useWeb3Contracts = (state: any, dispatch: any): any => {
             return {
               id: token[1],
               name: tokenMeta.data.name,
+              image: tokenMeta.data.image,
               description: tokenMeta.data.description
             }
           })),
@@ -225,6 +227,7 @@ const useWeb3Contracts = (state: any, dispatch: any): any => {
             return {
               id: token[1],
               name: tokenMeta.data.name,
+              image: tokenMeta.data.image,
               description: tokenMeta.data.description,
               canSale: token[3] === zeroAddr,
               hasOffers: token[5][0].toNumber() !== 0
@@ -244,22 +247,26 @@ const useWeb3Contracts = (state: any, dispatch: any): any => {
   }, [dispatch, marketContract, nftContract, ownersCollectionsLoading])
 
   const onMarketUpdated = useCallback(() => {
-    fetchMarketCollections()
     fetchOwnersCollections()
-  }, [fetchMarketCollections, fetchOwnersCollections])
+  }, [fetchOwnersCollections])
 
   useEffect(() => {
     if (address && marketContract?.on) {
       const onCollectionCreatedFilter = marketContract.filters.CollectionCreated(address)
       marketContract.on(onCollectionCreatedFilter, onMarketUpdated)
+
       const onTokenListedForSaleFilter = marketContract.filters.TokenListedForSale(address)
       marketContract.on(onTokenListedForSaleFilter, onMarketUpdated)
+
       const onTokenMintedFilter = marketContract.filters.TokenMinted(address)
       marketContract.on(onTokenMintedFilter, onMarketUpdated)
-      const onTokenSoldFilter = marketContract.filters.TokenSold()
+
+      const onTokenSoldFilter = marketContract.filters.TokenSold(address)
       marketContract.on(onTokenSoldFilter, onMarketUpdated)
+
       const onOfferCreatedFilter = marketContract.filters.OfferCreated(address)
       marketContract.on(onOfferCreatedFilter, onMarketUpdated)
+
       const onOfferAcceptedFilter = marketContract.filters.OfferAccepted(address)
       marketContract.on(onOfferAcceptedFilter, onMarketUpdated)
 

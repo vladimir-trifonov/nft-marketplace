@@ -9,14 +9,14 @@ import Typography from '@mui/material/Typography'
 import Card from '@mui/material/Card'
 import CardActions from '@mui/material/CardActions'
 import CardContent from '@mui/material/CardContent'
-// import CardMedia from '@mui/material/CardMedia'
+import CardMedia from '@mui/material/CardMedia'
 import CreateCollectionDialog from './CreateCollectionDialog'
 import CreateTokenDialog from './CreateTokenDialog'
 import AcceptTokenOfferDialog from './AcceptTokenOfferDialog'
 import LinearProgress from '@mui/material/LinearProgress'
 
-const ListWrapper = styled('div')(({ theme }) => ({
-  backgroundColor: theme.palette.background.paper,
+const ListWrapper = styled('div')(() => ({
+  backgroundColor: "transparent"
 }))
 
 const OwnerCollections = ({
@@ -83,14 +83,16 @@ const OwnerCollections = ({
             >
               Create Collection
             </Button>
-            <ListWrapper sx={{ mt: 1, width: 320 }}>
+            <ListWrapper sx={{ mt: 1 }}>
               {!!ownersCollections?.length && (
                 <List
                   sx={{
+                    borderRadius: 1,
+                    border: "1px rgba(255,255,255,0.5) solid",
                     width: '100%',
                     overflow: 'hidden',
                     position: 'relative',
-                    backgroundColor: '#2e1846',
+                    backgroundColor: 'rgba(46,24,70,0.3)'
                   }}
                 >
                   {ownersCollections?.map((item: any) => (
@@ -99,8 +101,8 @@ const OwnerCollections = ({
                         cursor: 'pointer',
                         backgroundColor:
                           item.id === (currentCollection as any)?.id
-                            ? 'rgba(255,255,255,0.5)'
-                            : 'rgb(46,24,70)',
+                            ? 'rgba(255,255,255,0.4)'
+                            : 'rgba(46,24,70,0.7)',
                         color:
                           item.id === (currentCollection as any)?.id
                             ? '#000000'
@@ -147,17 +149,19 @@ const OwnerCollections = ({
                   >
                     <Card
                       sx={{
+                        borderRadius: 1,
+                        border: "1px rgba(255,255,255,0.5) solid",
                         width: '100%',
                         height: '100%',
-                        backgroundColor: '#2e1846',
+                        backgroundColor: 'rgba(46,24,70,0.7)'
                       }}
                     >
-                      {/* <CardMedia
+                      <CardMedia
                         component="img"
-                        height="140"
+                        height="200"
                         image={item.image}
                         alt={`${item.name} token`}
-                      /> */}
+                      />
                       <CardContent>
                         <Typography gutterBottom variant="h5" component="div">
                           {item.name}
