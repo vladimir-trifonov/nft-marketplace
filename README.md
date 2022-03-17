@@ -3,7 +3,7 @@
 # Prerequisites
 1. [Node.js](https://nodejs.org/en/) version >= v16.14.0 
 
-## Live Test - [Rinkeby Flow](DEV_LIVE_TEST.md)
+## Live Test - [Ropsten Flow](DEV_LIVE_TEST.md)
 
 ## Development
 

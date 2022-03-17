@@ -1,4 +1,4 @@
-# NFT Marketplace Live Test - Rinkeby Flow
+# NFT Marketplace Live Test - Ropsten Flow
 
 ### Installation
 
@@ -8,11 +8,11 @@
 ### Deployment
 
 #### Deploy NFT Marketplace
-1. Set the Rinkeby environment variables in `nft-marketplace\sol\.env`.
+1. Set the Ropsten environment variables in `nft-marketplace\sol\.env`.
             
 ```Example
 ETHERSCAN_API_KEY=// Optional
-RINKEBY_URL=https://rinkeby.infura.io/v3/<INFURA_ID>
+ROPSTEN_URL=https://ropsten.infura.io/v3/<INFURA_ID>
 PRIVATE_KEY=// The account eth wallet private key
 ```
 
@@ -24,9 +24,9 @@ The owner wallet private key can be retrieved from Metamask.
    
 `evm-token-bridge> npx hardhat compile`
 
-3. Deploy NFT Marketplace on Rinkeby.
+3. Deploy NFT Marketplace on Ropsten.
             
-`nft-marketplace\sol> npx hardhat run --network rinkeby scripts/deploy.ts`
+`nft-marketplace\sol> npx hardhat run --network ropsten scripts/deploy.ts`
 
 4. Write down the contracts addresses from the console. We will need them later.
 ```
@@ -36,7 +36,7 @@ Market deployed to: 0x...
 ```
 
 **Verify market contract deployment(Require: ETHERSCAN_API_KEY in .env)**
-- Verify Market deployment: `npx hardhat verify --network rinkeby <MARKET_ADDRESS> "<NFT_ADDRESS>" "<Market_ADDRESS>"`
+- Verify Market deployment: `npx hardhat verify --network ropsten <MARKET_ADDRESS> "<NFT_ADDRESS>" "<Market_ADDRESS>"`
 
 5. (Optional) To copy the contracts json files if changed execute `nft-marketplace> ./copy_contracts.sh`.
 
