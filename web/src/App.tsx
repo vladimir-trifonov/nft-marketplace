@@ -17,7 +17,7 @@ import { useErrorBoundary } from "use-error-boundary"
 export const Home = (): JSX.Element => {
   const { ErrorBoundary } = useErrorBoundary()
   const [state, dispatch] = useReducer(reducer, initialState)
-  const { marketCollectionsLoading, ownersCollectionsLoading } = state
+  const { marketAssetsLoading, ownersAssetsLoading } = state
   const [
     { connect, disconnect },
     { chainData, web3Provider, address },
@@ -26,15 +26,15 @@ export const Home = (): JSX.Element => {
     {
       onCreateCollection,
       onCreateToken,
-      fetchOwnersCollections,
-      fetchMarketCollections,
+      fetchOwnersAssets,
+      fetchMarketAssets,
       onBuyToken,
       onListTokenForSale,
       onMakeTokenOffer,
       onAcceptTokenOffer,
       fetchTokenOffers
     },
-    { marketContract, ownersCollections, marketCollections },
+    { marketContract, nftContract, collectionContract, ownersAssets, marketAssets },
   ] = useWeb3Contracts(state, dispatch)
 
   return (
@@ -93,18 +93,20 @@ export const Home = (): JSX.Element => {
                 address={address}
                 web3Provider={web3Provider}
                 marketContract={marketContract}
+                collectionContract={collectionContract}
+                nftContract={nftContract}
                 onCreateCollection={onCreateCollection}
                 onCreateToken={onCreateToken}
                 onBuyToken={onBuyToken}
                 onListTokenForSale={onListTokenForSale}
                 onMakeTokenOffer={onMakeTokenOffer}
                 onAcceptTokenOffer={onAcceptTokenOffer}
-                fetchOwnersCollections={fetchOwnersCollections}
-                fetchMarketCollections={fetchMarketCollections}
-                ownersCollections={ownersCollections}
-                marketCollections={marketCollections}
-                marketCollectionsLoading={marketCollectionsLoading}
-                ownersCollectionsLoading={ownersCollectionsLoading}
+                fetchOwnersAssets={fetchOwnersAssets}
+                fetchMarketAssets={fetchMarketAssets}
+                ownersAssets={ownersAssets}
+                marketAssets={marketAssets}
+                marketAssetsLoading={marketAssetsLoading}
+                ownersAssetsLoading={ownersAssetsLoading}
                 fetchTokenOffers={fetchTokenOffers}
               />
             </Grid>

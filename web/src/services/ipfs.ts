@@ -1,18 +1,11 @@
-import pinataSDK, { PinataOptions } from "@pinata/sdk"
+import { create as ipfsHttpClient } from "ipfs-http-client"
 const CIDTool = require("cid-tool")
 
-const pinata = pinataSDK(process.env.REACT_APP_PINATA_API_KEY as string, process.env.REACT_APP_PINATA_SECRET_API_KEY as string)
+const infura = "https://ipfs.infura.io"
+const ipfs = ipfsHttpClient({ url: `${infura}:5001/api/v0` })
 
-export const pinJSONToIPFS = (body: { name: string, description?: string, image?: string }): Promise<string | void> => {
-  const options = {
-    pinataOptions: {
-      cidVersion: 1
-    } as PinataOptions
-  }
-
-  return pinata.pinJSONToIPFS(body, options).then(({ IpfsHash }) => {
-    return `0x${CIDTool.format(IpfsHash, { base: "base16" }).slice(9)}`
-  }).catch((err) => {
-    console.warn(err)
-  })
+export const add = async (payload: any, isImage: boolean = false): Promise<string | void> => {
+  const res = await ipfs.add(payload, { cidVersion: 1, hashAlg: "blake2b-208" })
+  if (isImage) return `${infura}/ipfs/${res.path}`
+  return `0x${CIDTool.format(res.path, { base: "base16" }).slice(1)}`
 }

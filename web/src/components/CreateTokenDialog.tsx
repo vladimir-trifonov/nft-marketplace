@@ -5,11 +5,8 @@ import Dialog from "@mui/material/Dialog"
 import DialogContent from "@mui/material/DialogContent"
 import DialogActions from "@mui/material/DialogActions"
 import BootstrapDialogTitle from "./BootstrapDialogTitle"
-import { pinJSONToIPFS } from "../services/ipfs"
+import { add } from "../services/ipfs"
 import { ImageSelect } from "./ImageSelect"
-import { create as ipfsHttpClient } from "ipfs-http-client"
-
-const ipfs = ipfsHttpClient({ url: "https://ipfs.infura.io:5001/api/v0" })
 
 const CreateTokenDialog = ({
   openCreateToken,
@@ -29,12 +26,9 @@ const CreateTokenDialog = ({
   const [image, setImage] = useState("")
 
   const handleCreateToken = async () => {
-    const added = await ipfs.add(image as any)
-    const url = `https://ipfs.infura.io/ipfs/${added.path}`
-
     onCloseCreateToken()
-    const id = await pinJSONToIPFS({ name: tokenTitle, description: tokenDesc, image: url })
-
+    const url = await add(image as any, true)
+    const id = await add(Buffer.from(JSON.stringify({ name: tokenTitle, description: tokenDesc, image: url })))
     setTokenTitle("")
     setTokenDesc("")
 

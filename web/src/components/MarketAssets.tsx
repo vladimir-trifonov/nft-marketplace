@@ -10,63 +10,45 @@ import Card from "@mui/material/Card"
 import CardActions from "@mui/material/CardActions"
 import CardContent from "@mui/material/CardContent"
 import CardMedia from "@mui/material/CardMedia"
-import CreateCollectionDialog from "./CreateCollectionDialog"
-import CreateTokenDialog from "./CreateTokenDialog"
-import AcceptTokenOfferDialog from "./AcceptTokenOfferDialog"
+import MakeTokenOfferDialog from "./MakeTokenOfferDialog"
 import LinearProgress from "@mui/material/LinearProgress"
 
 const ListWrapper = styled("div")(() => ({
   backgroundColor: "transparent"
 }))
 
-const OwnerCollections = ({
-  fetchTokenOffers,
-  onListTokenForSale,
-  onCreateCollection,
-  onCreateToken,
-  ownersCollections,
-  onAcceptTokenOffer,
+const MarketAssets = ({
+  marketAssets,
+  onBuyToken,
+  onMakeTokenOffer,
   loading,
 }: {
-  fetchTokenOffers: any
-  onListTokenForSale: any
-  onCreateCollection: any
-  onCreateToken: any
-  ownersCollections: any
-  onAcceptTokenOffer: any
+  marketAssets: any
+  onBuyToken: any
+  onMakeTokenOffer: any
   loading: boolean
 }): JSX.Element => {
-  const [openCreateCollection, setOpenCreateCollection] = useState(false)
-  const [currentCollection, setCurrentCollection] = useState(null)
-  const [openCreateToken, setOpenCreateToken] = useState(false)
-  const [openAcceptAnOffer, setOpenAcceptAnOffer] = useState(false)
+  const [currentMarketCollection, setCurrentMarketCollection] = useState(null)
   const [currentToken, setCurrentToken] = useState(null)
+  const [openMakeAnOffer, setOpenMakeAnOffer] = useState(false)
 
   useEffect(() => {
-    if (ownersCollections?.length) {
-      setCurrentCollection(ownersCollections[0])
+    if (marketAssets?.length) {
+      setCurrentMarketCollection(marketAssets[0])
     } else {
-      setCurrentCollection(null)
+      setCurrentMarketCollection(null)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ownersCollections])
+  }, [marketAssets])
 
-  const handleOpenCreateCollection = () => {
-    setOpenCreateCollection(true)
+  const handleBuyToken = (token: any) => {
+    setCurrentToken(token)
+    onBuyToken(token.id, token.price, (currentMarketCollection as any).id)
   }
 
-  const handleOpenCreateToken = () => {
-    setOpenCreateToken(true)
-  }
-  
-  const handleListTokenForSale = (token: any) => {
+  const handleOpenMakeAnOffer = (token: any) => {
     setCurrentToken(token)
-    onListTokenForSale(token.id)
-  }
-  
-  const handleOpenAcceptAnOffer = (token: any) => {
-    setCurrentToken(token)
-    setOpenAcceptAnOffer(true)
+    setOpenMakeAnOffer(true)
   }
 
   return (
@@ -76,15 +58,8 @@ const OwnerCollections = ({
       ) : (
         <Grid container spacing={2}>
           <Grid item xs={4}>
-            <Button
-              variant="outlined"
-              size="medium"
-              onClick={handleOpenCreateCollection}
-            >
-              Create Collection
-            </Button>
-            <ListWrapper sx={{ mt: 1 }}>
-              {!!ownersCollections?.length && (
+            <ListWrapper>
+              {!!marketAssets?.length && (
                 <List
                   sx={{
                     borderRadius: 1,
@@ -95,16 +70,16 @@ const OwnerCollections = ({
                     backgroundColor: "rgba(46,24,70,0.3)"
                   }}
                 >
-                  {ownersCollections?.map((item: any) => (
+                  {marketAssets?.map((item: any) => (
                     <ListItem
                       sx={{
                         cursor: "pointer",
                         backgroundColor:
-                          item.id === (currentCollection as any)?.id
+                          item.id === (currentMarketCollection as any)?.id
                             ? "rgba(255,255,255,0.4)"
                             : "rgba(46,24,70,0.7)",
                         color:
-                          item.id === (currentCollection as any)?.id
+                          item.id === (currentMarketCollection as any)?.id
                             ? "#000000"
                             : "#ffffff",
                       }}
@@ -113,8 +88,8 @@ const OwnerCollections = ({
                       <ListItemText
                         primary={item.name}
                         onClick={() =>
-                          setCurrentCollection(
-                            ownersCollections.find(
+                          setCurrentMarketCollection(
+                            marketAssets.find(
                               ({ id }: { id: string }) => id === item.id,
                             ),
                           )
@@ -127,26 +102,10 @@ const OwnerCollections = ({
             </ListWrapper>
           </Grid>
           <Grid item xs={8}>
-            {(currentCollection as any)?.canCreateToken && (
-              <Button
-                sx={{ mb: 1 }}
-                variant="outlined"
-                size="medium"
-                onClick={handleOpenCreateToken}
-              >
-                Create Token
-              </Button>
-            )}
-            {!!(currentCollection as any)?.tokens?.length && (
+            {!!(currentMarketCollection as any)?.tokens?.length && (
               <Grid container spacing={1} alignItems="stretch">
-                {(currentCollection as any).tokens.map((item: any) => (
-                  <Grid
-                    key={item.id}
-                    minHeight="240"
-                    maxHeight="240"
-                    xs={4}
-                    item
-                  >
+                {(currentMarketCollection as any).tokens.map((item: any) => (
+                  <Grid key={item.id} height="240" xs={4} item>
                     <Card
                       sx={{
                         borderRadius: 1,
@@ -171,16 +130,21 @@ const OwnerCollections = ({
                         </Typography>
                       </CardContent>
                       <CardActions>
-                        {item?.canSale && (
+                        {item?.forSale && (
                           <Button
                             size="small"
-                            onClick={() => handleListTokenForSale(item)}
+                            onClick={() => handleBuyToken(item)}
                           >
-                            List for sale
+                            Buy
                           </Button>
                         )}
-                        {item?.hasOffers && (
-                          <Button size="small" onClick={() => handleOpenAcceptAnOffer(item)}>Accept an Offer</Button>
+                        {item?.acceptOffers && (
+                          <Button
+                            size="small"
+                            onClick={() => handleOpenMakeAnOffer(item)}
+                          >
+                            Make an Offer
+                          </Button>
                         )}
                       </CardActions>
                     </Card>
@@ -191,26 +155,14 @@ const OwnerCollections = ({
           </Grid>
         </Grid>
       )}
-      <CreateCollectionDialog
-        onCloseCreateCollection={() => setOpenCreateCollection(false)}
-        onCreateCollection={onCreateCollection}
-        openCreateCollection={openCreateCollection}
-      />
-      <CreateTokenDialog
-        collection={currentCollection}
-        openCreateToken={openCreateToken}
-        onCreateToken={onCreateToken}
-        onCloseCreateToken={() => setOpenCreateToken(false)}
-      />
-      <AcceptTokenOfferDialog
-        fetchTokenOffers={fetchTokenOffers}
+      <MakeTokenOfferDialog
+        openMakeAnOffer={openMakeAnOffer}
+        onMakeTokenOffer={onMakeTokenOffer}
+        onCloseMakeAnOffer={() => setOpenMakeAnOffer(false)}
         token={currentToken}
-        openAcceptAnOffer={openAcceptAnOffer}
-        onAcceptTokenOffer={onAcceptTokenOffer}
-        onCloseAcceptAnOffer={() => setOpenAcceptAnOffer(false)}
       />
     </>
   )
 }
 
-export default OwnerCollections
+export default MarketAssets

@@ -18,85 +18,49 @@ import { FunctionFragment, Result, EventFragment } from "@ethersproject/abi";
 import { Listener, Provider } from "@ethersproject/providers";
 import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 
-export declare namespace Counters {
-  export type CounterStruct = { _value: BigNumberish };
-
-  export type CounterStructOutput = [BigNumber] & { _value: BigNumber };
-}
-
-export declare namespace Market {
-  export type CollectionStruct = {
-    index: BigNumberish;
-    id: BigNumberish;
-    owner: string;
-    tokensCount: Counters.CounterStruct;
-    tokensSold: Counters.CounterStruct;
-    tokensIds: BigNumberish[];
-    exists: boolean;
-  };
-
-  export type CollectionStructOutput = [
-    BigNumber,
-    BigNumber,
-    string,
-    Counters.CounterStructOutput,
-    Counters.CounterStructOutput,
-    BigNumber[],
-    boolean
-  ] & {
-    index: BigNumber;
-    id: BigNumber;
-    owner: string;
-    tokensCount: Counters.CounterStructOutput;
-    tokensSold: Counters.CounterStructOutput;
-    tokensIds: BigNumber[];
-    exists: boolean;
-  };
-
-  export type TokenStruct = {
-    index: BigNumberish;
-    id: BigNumberish;
-    price: BigNumberish;
-    seller: string;
-    owner: string;
-    offersCount: Counters.CounterStruct;
-    sold: boolean;
-    exists: boolean;
-  }[];
-
-  export type TokenStructOutput = ([
-    BigNumber,
-    BigNumber,
-    BigNumber,
-    string,
-    string,
-    Counters.CounterStructOutput,
-    boolean,
-    boolean
-  ] & {
-    index: BigNumber;
-    id: BigNumber;
-    price: BigNumber;
-    seller: string;
-    owner: string;
-    offersCount: Counters.CounterStructOutput;
-    sold: boolean;
-    exists: boolean;
-  })[];
-
+export declare namespace IMarket {
   export type OfferStruct = {
     id: BigNumberish;
     offeror: string;
     price: BigNumberish;
-    exists: boolean;
   };
 
-  export type OfferStructOutput = [BigNumber, string, BigNumber, boolean] & {
+  export type OfferStructOutput = [BigNumber, string, BigNumber] & {
     id: BigNumber;
     offeror: string;
     price: BigNumber;
-    exists: boolean;
   };
+
+  export type TokenStruct = {
+    tokenId: BigNumberish;
+    collectionId: BigNumberish;
+    owner: string;
+    forSale: boolean;
+    price: BigNumberish;
+    offersCount: Counters.CounterStruct;
+  };
+
+  export type TokenStructOutput = [
+    BigNumber,
+    BigNumber,
+    string,
+    boolean,
+    BigNumber,
+    Counters.CounterStructOutput
+  ] & {
+    tokenId: BigNumber;
+    collectionId: BigNumber;
+    owner: string;
+    forSale: boolean;
+    price: BigNumber;
+    offersCount: Counters.CounterStructOutput;
+  };
+}
+
+export declare namespace Counters {
+  export type CounterStruct = { _value: BigNumberish };
+
+  export type CounterStructOutput = [BigNumber] & { _value: BigNumber };
 }
 
 export interface MarketInterface extends utils.Interface {
@@ -105,9 +69,8 @@ export interface MarketInterface extends utils.Interface {
     "acceptOffer(uint256,uint256)": FunctionFragment;
     "buyToken(uint256,uint256)": FunctionFragment;
     "createCollection(uint256)": FunctionFragment;
-    "fetchMarketCollections()": FunctionFragment;
-    "fetchOwnersCollections()": FunctionFragment;
     "fetchTokenOffers(uint256)": FunctionFragment;
+    "fetchTokensBatch(uint256[])": FunctionFragment;
     "listTokenForSale(uint256)": FunctionFragment;
     "makeOffer(uint256)": FunctionFragment;
     "mintToken(uint256,uint256)": FunctionFragment;
@@ -118,7 +81,6 @@ export interface MarketInterface extends utils.Interface {
     "supportsInterface(bytes4)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
     "uint2hex64str(uint256,uint8)": FunctionFragment;
-    "uri(uint256)": FunctionFragment;
     "withdraw()": FunctionFragment;
   };
 
@@ -135,16 +97,12 @@ export interface MarketInterface extends utils.Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "fetchMarketCollections",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "fetchOwnersCollections",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "fetchTokenOffers",
     values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "fetchTokensBatch",
+    values: [BigNumberish[]]
   ): string;
   encodeFunctionData(
     functionFragment: "listTokenForSale",
@@ -183,7 +141,6 @@ export interface MarketInterface extends utils.Interface {
     functionFragment: "uint2hex64str",
     values: [BigNumberish, BigNumberish]
   ): string;
-  encodeFunctionData(functionFragment: "uri", values: [BigNumberish]): string;
   encodeFunctionData(functionFragment: "withdraw", values?: undefined): string;
 
   decodeFunctionResult(
@@ -196,15 +153,11 @@ export interface MarketInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "fetchMarketCollections",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "fetchOwnersCollections",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "fetchTokenOffers",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "fetchTokensBatch",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -238,12 +191,11 @@ export interface MarketInterface extends utils.Interface {
     functionFragment: "uint2hex64str",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "uri", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
 
   events: {
     "CollectionCreated(address,uint256)": EventFragment;
-    "OfferAccepted(address,address,uint256,uint256)": EventFragment;
+    "OfferAccepted(address,address,uint256,uint256,uint256)": EventFragment;
     "OfferCreated(address,address,uint256,uint256,uint256)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "TokenListedForSale(address,uint256)": EventFragment;
@@ -269,8 +221,14 @@ export type CollectionCreatedEventFilter =
   TypedEventFilter<CollectionCreatedEvent>;
 
 export type OfferAcceptedEvent = TypedEvent<
-  [string, string, BigNumber, BigNumber],
-  { seller: string; buyer: string; tokenId: BigNumber; price: BigNumber }
+  [string, string, BigNumber, BigNumber, BigNumber],
+  {
+    seller: string;
+    buyer: string;
+    tokenId: BigNumber;
+    offerId: BigNumber;
+    price: BigNumber;
+  }
 >;
 
 export type OfferAcceptedEventFilter = TypedEventFilter<OfferAcceptedEvent>;
@@ -307,7 +265,7 @@ export type TokenListedForSaleEventFilter =
 export type TokenMintedEvent = TypedEvent<
   [string, BigNumber, BigNumber, BigNumber],
   {
-    seller: string;
+    owner: string;
     collectionId: BigNumber;
     tokenId: BigNumber;
     price: BigNumber;
@@ -374,30 +332,15 @@ export interface Market extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    fetchMarketCollections(
-      overrides?: CallOverrides
-    ): Promise<
-      [
-        Market.CollectionStructOutput[],
-        Market.TokenStructOutput[],
-        Market.TokenStructOutput[]
-      ]
-    >;
-
-    fetchOwnersCollections(
-      overrides?: CallOverrides
-    ): Promise<
-      [
-        Market.CollectionStructOutput[],
-        Market.TokenStructOutput[],
-        Market.TokenStructOutput[]
-      ]
-    >;
-
     fetchTokenOffers(
       _tokenId: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<[Market.OfferStructOutput[]]>;
+    ): Promise<[IMarket.OfferStructOutput[]]>;
+
+    fetchTokensBatch(
+      _tokenIds: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<[IMarket.TokenStructOutput[]]>;
 
     listTokenForSale(
       _tokenId: BigNumberish,
@@ -455,8 +398,6 @@ export interface Market extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    uri(_id: BigNumberish, overrides?: CallOverrides): Promise<[string]>;
-
     withdraw(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -479,30 +420,15 @@ export interface Market extends BaseContract {
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  fetchMarketCollections(
-    overrides?: CallOverrides
-  ): Promise<
-    [
-      Market.CollectionStructOutput[],
-      Market.TokenStructOutput[],
-      Market.TokenStructOutput[]
-    ]
-  >;
-
-  fetchOwnersCollections(
-    overrides?: CallOverrides
-  ): Promise<
-    [
-      Market.CollectionStructOutput[],
-      Market.TokenStructOutput[],
-      Market.TokenStructOutput[]
-    ]
-  >;
-
   fetchTokenOffers(
     _tokenId: BigNumberish,
     overrides?: CallOverrides
-  ): Promise<Market.OfferStructOutput[]>;
+  ): Promise<IMarket.OfferStructOutput[]>;
+
+  fetchTokensBatch(
+    _tokenIds: BigNumberish[],
+    overrides?: CallOverrides
+  ): Promise<IMarket.TokenStructOutput[]>;
 
   listTokenForSale(
     _tokenId: BigNumberish,
@@ -560,8 +486,6 @@ export interface Market extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
-  uri(_id: BigNumberish, overrides?: CallOverrides): Promise<string>;
-
   withdraw(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -584,30 +508,15 @@ export interface Market extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    fetchMarketCollections(
-      overrides?: CallOverrides
-    ): Promise<
-      [
-        Market.CollectionStructOutput[],
-        Market.TokenStructOutput[],
-        Market.TokenStructOutput[]
-      ]
-    >;
-
-    fetchOwnersCollections(
-      overrides?: CallOverrides
-    ): Promise<
-      [
-        Market.CollectionStructOutput[],
-        Market.TokenStructOutput[],
-        Market.TokenStructOutput[]
-      ]
-    >;
-
     fetchTokenOffers(
       _tokenId: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<Market.OfferStructOutput[]>;
+    ): Promise<IMarket.OfferStructOutput[]>;
+
+    fetchTokensBatch(
+      _tokenIds: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<IMarket.TokenStructOutput[]>;
 
     listTokenForSale(
       _tokenId: BigNumberish,
@@ -660,8 +569,6 @@ export interface Market extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
-    uri(_id: BigNumberish, overrides?: CallOverrides): Promise<string>;
-
     withdraw(overrides?: CallOverrides): Promise<void>;
   };
 
@@ -675,16 +582,18 @@ export interface Market extends BaseContract {
       collectionId?: null
     ): CollectionCreatedEventFilter;
 
-    "OfferAccepted(address,address,uint256,uint256)"(
+    "OfferAccepted(address,address,uint256,uint256,uint256)"(
       seller?: string | null,
       buyer?: string | null,
       tokenId?: BigNumberish | null,
+      offerId?: null,
       price?: null
     ): OfferAcceptedEventFilter;
     OfferAccepted(
       seller?: string | null,
       buyer?: string | null,
       tokenId?: BigNumberish | null,
+      offerId?: null,
       price?: null
     ): OfferAcceptedEventFilter;
 
@@ -722,13 +631,13 @@ export interface Market extends BaseContract {
     ): TokenListedForSaleEventFilter;
 
     "TokenMinted(address,uint256,uint256,uint256)"(
-      seller?: string | null,
+      owner?: string | null,
       collectionId?: BigNumberish | null,
       tokenId?: null,
       price?: null
     ): TokenMintedEventFilter;
     TokenMinted(
-      seller?: string | null,
+      owner?: string | null,
       collectionId?: BigNumberish | null,
       tokenId?: null,
       price?: null
@@ -768,12 +677,13 @@ export interface Market extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    fetchMarketCollections(overrides?: CallOverrides): Promise<BigNumber>;
-
-    fetchOwnersCollections(overrides?: CallOverrides): Promise<BigNumber>;
-
     fetchTokenOffers(
       _tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    fetchTokensBatch(
+      _tokenIds: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -833,8 +743,6 @@ export interface Market extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    uri(_id: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
-
     withdraw(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -858,16 +766,13 @@ export interface Market extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    fetchMarketCollections(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    fetchOwnersCollections(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     fetchTokenOffers(
       _tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    fetchTokensBatch(
+      _tokenIds: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -924,11 +829,6 @@ export interface Market extends BaseContract {
     uint2hex64str(
       i: BigNumberish,
       ml: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    uri(
-      _id: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

@@ -2,7 +2,11 @@
 pragma solidity ^0.8.0;
 
 contract Utils {
-    function uint2hex64str(uint256 i, uint8 ml) public pure returns (string memory) {
+    function uint2hex64str(uint256 i, uint8 ml)
+        public
+        pure
+        returns (string memory)
+    {
         if (i == 0) return "0";
         uint256 j = i;
         uint256 length;

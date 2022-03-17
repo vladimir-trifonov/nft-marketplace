@@ -2,7 +2,6 @@
 
 # Prerequisites
 1. [Node.js](https://nodejs.org/en/) version >= v16.14.0 
-2. [Pinata account](https://www.pinata.cloud/))
 
 ## Live Test - [Rinkeby Flow](DEV_LIVE_TEST.md)
 
@@ -40,6 +39,7 @@ Private Key: 0x...
 5. Write down the contracts addresses from the console. We will need them later.
 ```
 NFT deployed to: 0x...
+Collection deployed to: 0x...
 Market deployed to: 0x...
 ```
 
@@ -49,9 +49,8 @@ Market deployed to: 0x...
             
 ```Example
 REACT_APP_NFT_CONTRACT_ADDRESS=// The token contract address from `step 5`
-REACT_APP_MARKET_CONTRACT_ADDRESS=// The token contract address from `step 5`
-REACT_APP_PINATA_API_KEY=// Pinata api key
-REACT_APP_PINATA_SECRET_API_KEY=// Pinata secret api key
+REACT_APP_COLLECTION_CONTRACT_ADDRESS=// The collection contract address from `step 5`
+REACT_APP_MARKET_CONTRACT_ADDRESS=// The market contract address from `step 5`
 ```
 
 8. Start the React App.
@@ -73,6 +72,7 @@ Currency Symbol: ETH
 
 ## Help
 1. Reset [Metamask Account](https://support.avax.network/en/articles/4872721-metamask-transactions-are-stuck-rejected) if you get error similar to `Nonce too high` in the browser.
-
+2. Reset hardhat with `npx hardhat clean` if you get error similar to `HardhatError: HH700: Artifact for contract ... not found.` on deploy.
+ 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)

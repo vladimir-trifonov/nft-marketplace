@@ -31,12 +31,12 @@ The owner wallet private key can be retrieved from Metamask.
 4. Write down the contracts addresses from the console. We will need them later.
 ```
 NFT deployed to: 0x...
+Collection deployed to: 0x...
 Market deployed to: 0x...
 ```
 
-**Verify contracts deployment(Require: ETHERSCAN_API_KEY in .env)**
-- Verify NFT deployment:  `npx hardhat verify --network rinkeby <NFT_ADDRESS>`
-- Verify Market deployment: `npx hardhat verify --network rinkeby <MARKET_ADDRESS> "<NFT_ADDRESS>"`
+**Verify market contract deployment(Require: ETHERSCAN_API_KEY in .env)**
+- Verify Market deployment: `npx hardhat verify --network rinkeby <MARKET_ADDRESS> "<NFT_ADDRESS>" "<Market_ADDRESS>"`
 
 5. (Optional) To copy the contracts json files if changed execute `nft-marketplace> ./copy_contracts.sh`.
 
@@ -44,9 +44,8 @@ Market deployed to: 0x...
             
 ```Example
 REACT_APP_NFT_CONTRACT_ADDRESS=// The token contract address from `step 4`
-REACT_APP_MARKET_CONTRACT_ADDRESS=// The token contract address from `step 4`
-REACT_APP_PINATA_API_KEY=// Pinata api key
-REACT_APP_PINATA_SECRET_API_KEY=// Pinata secret api key
+REACT_APP_COLLECTION_CONTRACT_ADDRESS=// The collection contract address from `step 4`
+REACT_APP_MARKET_CONTRACT_ADDRESS=// The market contract address from `step 4`
 ```
 
 7. Start the React App.

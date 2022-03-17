@@ -4,7 +4,7 @@
 
 import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-import type { IToken, ITokenInterface } from "../IToken";
+import type { IERC721, IERC721Interface } from "../IERC721";
 
 const _abi = [
   {
@@ -13,7 +13,32 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
-        name: "account",
+        name: "owner",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "approved",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+    ],
+    name: "Approval",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "owner",
         type: "address",
       },
       {
@@ -38,12 +63,6 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
-        name: "operator",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
         name: "from",
         type: "address",
       },
@@ -54,95 +73,46 @@ const _abi = [
         type: "address",
       },
       {
-        indexed: false,
-        internalType: "uint256[]",
-        name: "ids",
-        type: "uint256[]",
-      },
-      {
-        indexed: false,
-        internalType: "uint256[]",
-        name: "values",
-        type: "uint256[]",
+        indexed: true,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
       },
     ],
-    name: "TransferBatch",
+    name: "Transfer",
     type: "event",
   },
   {
-    anonymous: false,
     inputs: [
       {
-        indexed: true,
-        internalType: "address",
-        name: "operator",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "from",
-        type: "address",
-      },
-      {
-        indexed: true,
         internalType: "address",
         name: "to",
         type: "address",
       },
       {
-        indexed: false,
         internalType: "uint256",
-        name: "id",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "value",
+        name: "tokenId",
         type: "uint256",
       },
     ],
-    name: "TransferSingle",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "string",
-        name: "value",
-        type: "string",
-      },
-      {
-        indexed: true,
-        internalType: "uint256",
-        name: "id",
-        type: "uint256",
-      },
-    ],
-    name: "URI",
-    type: "event",
+    name: "approve",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
     inputs: [
       {
         internalType: "address",
-        name: "account",
+        name: "owner",
         type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "id",
-        type: "uint256",
       },
     ],
     name: "balanceOf",
     outputs: [
       {
         internalType: "uint256",
-        name: "",
+        name: "balance",
         type: "uint256",
       },
     ],
@@ -152,22 +122,17 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "address[]",
-        name: "accounts",
-        type: "address[]",
-      },
-      {
-        internalType: "uint256[]",
-        name: "ids",
-        type: "uint256[]",
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
       },
     ],
-    name: "balanceOfBatch",
+    name: "getApproved",
     outputs: [
       {
-        internalType: "uint256[]",
-        name: "",
-        type: "uint256[]",
+        internalType: "address",
+        name: "operator",
+        type: "address",
       },
     ],
     stateMutability: "view",
@@ -177,7 +142,7 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "account",
+        name: "owner",
         type: "address",
       },
       {
@@ -201,31 +166,19 @@ const _abi = [
     inputs: [
       {
         internalType: "uint256",
-        name: "_id",
+        name: "tokenId",
         type: "uint256",
       },
     ],
-    name: "lock",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_id",
-        type: "uint256",
-      },
+    name: "ownerOf",
+    outputs: [
       {
         internalType: "address",
-        name: "_owner",
+        name: "owner",
         type: "address",
       },
     ],
-    name: "mint",
-    outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -241,22 +194,12 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "uint256[]",
-        name: "ids",
-        type: "uint256[]",
-      },
-      {
-        internalType: "uint256[]",
-        name: "amounts",
-        type: "uint256[]",
-      },
-      {
-        internalType: "bytes",
-        name: "data",
-        type: "bytes",
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
       },
     ],
-    name: "safeBatchTransferFrom",
+    name: "safeTransferFrom",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -275,12 +218,7 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "id",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "amount",
+        name: "tokenId",
         type: "uint256",
       },
       {
@@ -303,7 +241,7 @@ const _abi = [
       },
       {
         internalType: "bool",
-        name: "approved",
+        name: "_approved",
         type: "bool",
       },
     ],
@@ -335,17 +273,17 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "_from",
+        name: "from",
         type: "address",
       },
       {
         internalType: "address",
-        name: "_to",
+        name: "to",
         type: "address",
       },
       {
         internalType: "uint256",
-        name: "_id",
+        name: "tokenId",
         type: "uint256",
       },
     ],
@@ -354,27 +292,17 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_id",
-        type: "uint256",
-      },
-    ],
-    name: "unlock",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
 ];
 
-export class IToken__factory {
+export class IERC721__factory {
   static readonly abi = _abi;
-  static createInterface(): ITokenInterface {
-    return new utils.Interface(_abi) as ITokenInterface;
+  static createInterface(): IERC721Interface {
+    return new utils.Interface(_abi) as IERC721Interface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): IToken {
-    return new Contract(address, _abi, signerOrProvider) as IToken;
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): IERC721 {
+    return new Contract(address, _abi, signerOrProvider) as IERC721;
   }
 }

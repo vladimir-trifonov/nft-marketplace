@@ -5,52 +5,56 @@ import Tab from "@mui/material/Tab"
 import TabContext from "@mui/lab/TabContext"
 import TabList from "@mui/lab/TabList"
 import TabPanel from "@mui/lab/TabPanel"
-import MarketCollections from "./MarketCollections"
-import OwnerCollections from "./OwnerCollections"
+import MarketAssets from "./MarketAssets"
+import OwnerAssets from "./OwnerAssets"
 
 const Marketplace = ({
   address,
-  marketCollections,
+  marketAssets,
   onBuyToken,
   onListTokenForSale,
-  fetchMarketCollections,
+  fetchMarketAssets,
   onCreateCollection,
   web3Provider,
   onCreateToken,
-  fetchOwnersCollections,
-  ownersCollections,
+  fetchOwnersAssets,
+  ownersAssets,
   marketContract,
+  collectionContract,
+  nftContract,
   onMakeTokenOffer,
   onAcceptTokenOffer,
-  marketCollectionsLoading,
-  ownersCollectionsLoading,
+  marketAssetsLoading,
+  ownersAssetsLoading,
   fetchTokenOffers
 }: {
   address: string
   onBuyToken: any
   onListTokenForSale: any
-  marketCollections: any
-  fetchMarketCollections: any
+  marketAssets: any
+  fetchMarketAssets: any
   web3Provider: any
   marketContract: any
+  collectionContract: any
+  nftContract: any
   onCreateCollection: any
   onCreateToken: any
-  fetchOwnersCollections: any
-  ownersCollections: any
+  fetchOwnersAssets: any
+  ownersAssets: any
   onMakeTokenOffer: any
   onAcceptTokenOffer: any
-  marketCollectionsLoading: boolean
-  ownersCollectionsLoading: boolean
+  marketAssetsLoading: boolean
+  ownersAssetsLoading: boolean
   fetchTokenOffers: any
 }): JSX.Element => {
   const [tab, setTab] = useState("market")
 
   useEffect(() => {
-    if (marketContract && web3Provider && address && !!tab) {
+    if (nftContract && collectionContract && marketContract && web3Provider && address && !!tab) {
       if (tab === "collections") {
-        fetchOwnersCollections()
+        fetchOwnersAssets()
       } else {
-        fetchMarketCollections()
+        fetchMarketAssets()
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -70,33 +74,33 @@ const Marketplace = ({
           sx={{
             typography: "body1",
             minWidth: 1100,
-            minHeight: 700,
+            minHeight: 500,
           }}
         >
           <TabContext value={tab}>
             <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
               <TabList onChange={handleChangeTab} aria-label="marketplace tabs">
                 <Tab label="Explore Market" value="market" />
-                <Tab label="My Collections" value="collections" />
+                <Tab label="My Assets" value="collections" />
               </TabList>
             </Box>
             <TabPanel value="market">
-              <MarketCollections
-                marketCollections={marketCollections}
+              <MarketAssets
+                marketAssets={marketAssets}
                 onBuyToken={onBuyToken}
                 onMakeTokenOffer={onMakeTokenOffer}
-                loading={marketCollectionsLoading}
+                loading={marketAssetsLoading}
               />
             </TabPanel>
             <TabPanel value="collections">
-              <OwnerCollections
+              <OwnerAssets
                 fetchTokenOffers={fetchTokenOffers}
                 onListTokenForSale={onListTokenForSale}
                 onCreateCollection={onCreateCollection}
                 onCreateToken={onCreateToken}
-                ownersCollections={ownersCollections}
+                ownersAssets={ownersAssets}
                 onAcceptTokenOffer={onAcceptTokenOffer}
-                loading={ownersCollectionsLoading}
+                loading={ownersAssetsLoading}
               />
             </TabPanel>
           </TabContext>

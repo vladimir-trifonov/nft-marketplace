@@ -9,6 +9,7 @@ import Dialog from "@mui/material/Dialog"
 import DialogContent from "@mui/material/DialogContent"
 import DialogActions from "@mui/material/DialogActions"
 import BootstrapDialogTitle from "./BootstrapDialogTitle"
+import { ellipseAddress } from "../helpers/utilities"
 
 const ListWrapper = styled("div")(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
@@ -100,7 +101,7 @@ const AcceptTokenOfferDialog = ({
                     key={item.id}
                   >
                     <ListItemText
-                      primary={`${item.offeror} - ${item.price} eth`}
+                      primary={`${ellipseAddress(item.offeror)} - ${item.price} eth`}
                       onClick={() =>
                         setCurrentOffer(
                           tokenOffers.find(

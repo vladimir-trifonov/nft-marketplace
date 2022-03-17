@@ -3,10 +3,10 @@ type StateType = {
   web3Provider?: any
   address?: string
   chainId?: number
-  ownersCollections?: any[]
-  marketCollections?: any[]
-  marketCollectionsLoading: boolean
-  ownersCollectionsLoading: boolean
+  ownersAssets?: any[]
+  marketAssets?: any[]
+  marketAssetsLoading: boolean
+  ownersAssetsLoading: boolean
 }
 
 export type ActionType =
@@ -20,8 +20,8 @@ export type ActionType =
   | {
     type: "SET_ADDRESS"
     address?: StateType["address"]
-    ownersCollections?: StateType["ownersCollections"]
-    marketCollections?: StateType["marketCollections"]
+    ownersAssets?: StateType["ownersAssets"]
+    marketAssets?: StateType["marketAssets"]
   }
   | {
     type: "SET_CHAIN_ID"
@@ -31,22 +31,22 @@ export type ActionType =
     type: "RESET_WEB3_PROVIDER"
   }
   | {
-    type: "FETCH_OWNERS_COLLECTIONS_START"
-    ownersCollectionsLoading?: StateType["ownersCollectionsLoading"]
+    type: "FETCH_OWNERS_ASSETS_START"
+    ownersAssetsLoading?: StateType["ownersAssetsLoading"]
   }
   | {
-    type: "FETCH_MARKET_COLLECTIONS_START"
-    marketCollectionsLoading?: StateType["marketCollectionsLoading"]
+    type: "FETCH_MARKET_ASSETS_START"
+    marketAssetsLoading?: StateType["marketAssetsLoading"]
   }
   | {
-    type: "FETCH_OWNERS_COLLECTIONS_SUCCESS"
-    ownersCollections?: StateType["ownersCollections"]
-    ownersCollectionsLoading?: StateType["ownersCollectionsLoading"]
+    type: "FETCH_OWNERS_ASSETS_SUCCESS"
+    ownersAssets?: StateType["ownersAssets"]
+    ownersAssetsLoading?: StateType["ownersAssetsLoading"]
   }
   | {
-    type: "FETCH_MARKET_COLLECTIONS_SUCCESS"
-    marketCollections?: StateType["marketCollections"]
-    marketCollectionsLoading?: StateType["marketCollectionsLoading"]
+    type: "FETCH_MARKET_ASSETS_SUCCESS"
+    marketAssets?: StateType["marketAssets"]
+    marketAssetsLoading?: StateType["marketAssetsLoading"]
   }
 
 export const initialState: StateType = {
@@ -54,10 +54,10 @@ export const initialState: StateType = {
   web3Provider: null,
   address: undefined,
   chainId: undefined,
-  ownersCollections: undefined,
-  marketCollections: undefined,
-  marketCollectionsLoading: false,
-  ownersCollectionsLoading: false
+  ownersAssets: undefined,
+  marketAssets: undefined,
+  marketAssetsLoading: false,
+  ownersAssetsLoading: false
 }
 
 const reducer = (state: StateType = initialState, action: ActionType): StateType => {
@@ -74,35 +74,35 @@ const reducer = (state: StateType = initialState, action: ActionType): StateType
       return {
         ...state,
         address: action.address,
-        marketCollections: undefined,
-        ownersCollections: undefined
+        marketAssets: undefined,
+        ownersAssets: undefined
       }
     case "SET_CHAIN_ID":
       return {
         ...state,
         chainId: action.chainId,
       }
-    case "FETCH_MARKET_COLLECTIONS_START":
+    case "FETCH_MARKET_ASSETS_START":
       return {
         ...state,
-        marketCollectionsLoading: true,
+        marketAssetsLoading: true,
       }
-    case "FETCH_OWNERS_COLLECTIONS_START":
+    case "FETCH_OWNERS_ASSETS_START":
       return {
         ...state,
-        ownersCollectionsLoading: true,
+        ownersAssetsLoading: true,
       }
-    case "FETCH_MARKET_COLLECTIONS_SUCCESS":
+    case "FETCH_MARKET_ASSETS_SUCCESS":
       return {
         ...state,
-        marketCollectionsLoading: false,
-        marketCollections: action.marketCollections,
+        marketAssetsLoading: false,
+        marketAssets: action.marketAssets,
       }
-    case "FETCH_OWNERS_COLLECTIONS_SUCCESS":
+    case "FETCH_OWNERS_ASSETS_SUCCESS":
       return {
         ...state,
-        ownersCollectionsLoading: false,
-        ownersCollections: action.ownersCollections,
+        ownersAssetsLoading: false,
+        ownersAssets: action.ownersAssets,
       }
     case "RESET_WEB3_PROVIDER":
       return initialState

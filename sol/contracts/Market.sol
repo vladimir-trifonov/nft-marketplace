@@ -2,359 +2,62 @@
 pragma solidity ^0.8.0;
 
 import "./Utils.sol";
-import "./IToken.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
+import "./INFT.sol";
+import "./ICollecion.sol";
+import "./IMarket.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Receiver.sol";
-import "hardhat/console.sol";
+import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 
-contract Market is ERC1155Receiver, ReentrancyGuard, Ownable, Utils {
+contract Market is ReentrancyGuard, Ownable, Utils, IMarket, ERC1155Holder {
     using Counters for Counters.Counter;
 
+    address collection;
     address token;
     uint256 lockedAmount = 0;
     uint256 TOKEN_PRICE = 0.005 ether;
 
-    mapping(uint256 => Collection) private collectionIdToCollection;
-    mapping(address => uint256[]) private collectionsIdsByOwner;
-    mapping(uint256 => uint256) private collectionIndexToId;
-    mapping(address => bool) private ownerHasCollections;
-    Counters.Counter private collectionsCount;
-
     mapping(uint256 => Token) private tokenIdToToken;
     mapping(uint256 => Offer[]) private tokenIdToOffers;
-    mapping(address => Counters.Counter) private ownedTokensCountByOwner;
-    uint256[] ownedTokensIds;
-    Counters.Counter private tokensCount;
 
-    event CollectionCreated(address indexed owner, uint256 collectionId);
-
-    event TokenMinted(
-        address indexed seller,
-        uint256 indexed collectionId,
-        uint256 tokenId,
-        uint256 price
-    );
-
-    event TokenSold(
-        address indexed seller,
-        address indexed buyer,
-        uint256 indexed tokenId,
-        uint256 collectionId,
-        uint256 price
-    );
-
-    event TokenListedForSale(address indexed seller, uint256 indexed tokenId);
-
-    event OfferCreated(
-        address indexed seller,
-        address indexed offeror,
-        uint256 indexed tokenId,
-        uint256 offerId,
-        uint256 price
-    );
-
-    event OfferAccepted(
-        address indexed seller,
-        address indexed buyer,
-        uint256 indexed tokenId,
-        uint256 price
-    );
-
-    struct Offer {
-        uint256 id;
-        address payable offeror;
-        uint256 price;
-        bool exists;
-    }
-
-    struct Token {
-        uint256 index;
-        uint256 id;
-        uint256 price;
-        address payable seller;
-        address owner;
-        Counters.Counter offersCount;
-        bool sold;
-        bool exists;
-    }
-
-    struct Collection {
-        uint256 index;
-        uint256 id;
-        address owner;
-        Counters.Counter tokensCount;
-        Counters.Counter tokensSold;
-        uint256[] tokensIds;
-        bool exists;
-    }
-
-    constructor(address _token) {
+    constructor(address _collection, address _token) {
+        collection = _collection;
         token = _token;
     }
 
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        virtual
-        override
-        returns (bool)
-    {
-        return super.supportsInterface(interfaceId);
-    }
+    function fetchTokensBatch(uint256[] memory _tokenIds) public view virtual override returns (Token[] memory) {
+        uint256 tokensCount = _tokenIds.length;
 
-    function onERC1155Received(
-        address,
-        address,
-        uint256,
-        uint256,
-        bytes memory
-    ) public virtual override returns (bytes4) {
-        return this.onERC1155Received.selector;
-    }
+        if (tokensCount == 0) return new Token[](0);
 
-    function onERC1155BatchReceived(
-        address,
-        address,
-        uint256[] memory,
-        uint256[] memory,
-        bytes memory
-    ) public virtual override returns (bytes4) {
-        return this.onERC1155BatchReceived.selector;
-    }
+        Token[] memory tokens = new Token[](tokensCount);
 
-    // Returns the data for the market collections and for the tokens of the other users
-    // Sample result: [
-    //  [
-    //    <collection 1 info>, <collection 2 info>, <collection 3 info>, ...
-    //  ],
-    //  [
-    //    [<collection 1 tokens>], [<collection 2 tokens>], [<collection 3 tokens>], ...
-    //  ],
-    //  [
-    //    [
-    //      <user 1 address>, [<user 1 tokens>]
-    //    ],
-    //    [
-    //      <user 2 address>, [<user 2 tokens>]
-    //    ],
-    //    ...
-    //  ]
-    // ]
-    function fetchMarketCollections()
-        public
-        view
-        returns (
-            Collection[] memory,
-            Token[][] memory,
-            Token[] memory
-        )
-    {
-        // All the collections count
-        uint256 allCollectionsCount = collectionsCount.current();
-
-        // The collections count of the requesting user
-        uint256 senderCollectionsCount = collectionsIdsByOwner[msg.sender]
-            .length;
-
-        // All the collections count minus the requesting user collections count
-        uint256 marketCollectionsCount = collectionsCount.current() -
-            (
-                ownerHasCollections[msg.sender] == true
-                    ? senderCollectionsCount
-                    : 0
-            );
-
-        // Initialize empty array for the collections data
-        Collection[] memory collections = new Collection[](
-            marketCollectionsCount
-        );
-
-        // Initialize empty array for the collections tokens data
-        Token[][] memory collectionsTokens = new Token[][](
-            marketCollectionsCount
-        );
-
-        uint256 currentCollectionIndex = 0;
-        for (uint256 i = 0; i < allCollectionsCount; i++) {
-            uint256 collectionId = collectionIndexToId[i];
-
-            if (collectionIdToCollection[collectionId].owner != msg.sender) {
-                // Adds the collection data to the results
-                collections[currentCollectionIndex] = collectionIdToCollection[
-                    collectionId
-                ];
-
-                // This is the actual tokens count for the current collection, i.e. minted tokens minus sold tokens
-                uint256 currentCollectionTokensCount = collectionIdToCollection[
-                    collectionId
-                ].tokensCount.current() -
-                    collectionIdToCollection[collectionId].tokensSold.current();
-
-                // Initialize empty nested array for the tokens from the current collection
-                collectionsTokens[currentCollectionIndex] = new Token[](
-                    currentCollectionTokensCount
-                );
-
-                uint256 currentTokenIndex = 0;
-                uint256 allTimeCollectionTokensCount = collections[
-                    currentCollectionIndex
-                ].tokensIds.length;
-
-                // Iterates through all the existing tokens and takes these
-                // which are part of the current collection
-                for (uint256 k = 0; k < allTimeCollectionTokensCount; k++) {
-                    uint256 tokenId = collections[currentCollectionIndex]
-                        .tokensIds[k];
-                    // Check if the token is part of the current collection
-                    if (
-                        tokenIdToToken[tokenId].seller ==
-                        collections[currentCollectionIndex].owner &&
-                        tokenIdToToken[tokenId].owner == address(0) &&
-                        tokenIdToToken[tokenId].sold == false
-                    ) {
-                        // Add the token data to the results
-                        collectionsTokens[currentCollectionIndex][
-                            currentTokenIndex
-                        ] = tokenIdToToken[tokenId];
-
-                        currentTokenIndex++;
-                    }
-                }
-
-                currentCollectionIndex++;
-            }
+        for (uint256 i = 0; i < tokensCount; i++) {
+            tokens[i] = tokenIdToToken[_tokenIds[i]];
         }
 
-        uint256 currentTokenOwned = 0;
-        uint256 ownedTokensCount = ownedTokensIds.length -
-            ownedTokensCountByOwner[msg.sender].current();
-        // This array will contain the token which is not part of a collection,
-        // and not bought by the requesting user i.e. being bought by another user
-        Token[] memory ownedTokens = new Token[](ownedTokensCount);
-
-        for (uint256 i = 0; i < ownedTokensIds.length; i++) {
-            // Check if the token is being sold and the requesting user doesn't own it
-            if (
-                tokenIdToToken[ownedTokensIds[i]].owner != msg.sender &&
-                tokenIdToToken[ownedTokensIds[i]].seller != msg.sender &&
-                tokenIdToToken[ownedTokensIds[i]].sold == true
-            ) {
-                ownedTokens[currentTokenOwned] = tokenIdToToken[
-                    ownedTokensIds[i]
-                ];
-
-                currentTokenOwned++;
-            }
-        }
-
-        return (collections, collectionsTokens, ownedTokens);
-    }
-
-    // Returns the collections and the collections tokens for the requesting user
-    // along with the tokens bought from another user's collections
-    function fetchOwnersCollections()
-        public
-        view
-        returns (
-            Collection[] memory,
-            Token[][] memory,
-            Token[] memory
-        )
-    {
-        uint256 ownersCollectionsCount = collectionsIdsByOwner[msg.sender]
-            .length;
-
-        Collection[] memory collections = new Collection[](
-            ownersCollectionsCount
-        );
-
-        Token[][] memory tokens = new Token[][](ownersCollectionsCount);
-
-        for (uint256 i = 0; i < ownersCollectionsCount; i++) {
-            uint256 collectionId = collectionsIdsByOwner[msg.sender][i];
-
-            collections[i] = collectionIdToCollection[collectionId];
-
-            tokens[i] = new Token[](
-                collectionIdToCollection[collectionId].tokensCount.current() -
-                    collectionIdToCollection[collectionId].tokensSold.current()
-            );
-
-            uint256 currentIndex = 0;
-            uint256 collectionTokensCount = collections[i].tokensIds.length;
-
-            for (uint256 k = 0; k < collectionTokensCount; k++) {
-                uint256 tokenId = collections[i].tokensIds[k];
-                if (
-                    tokenIdToToken[tokenId].seller == collections[i].owner &&
-                    tokenIdToToken[tokenId].sold == false
-                ) {
-                    tokens[i][currentIndex] = tokenIdToToken[tokenId];
-
-                    currentIndex++;
-                }
-            }
-        }
-
-        Token[] memory ownedTokens = new Token[](
-            ownedTokensCountByOwner[msg.sender].current()
-        );
-
-        uint256 currentTokenOwned = 0;
-        for (uint256 i = 0; i < ownedTokensIds.length; i++) {
-            if (
-                (tokenIdToToken[ownedTokensIds[i]].owner == msg.sender ||
-                    tokenIdToToken[ownedTokensIds[i]].seller == msg.sender) &&
-                tokenIdToToken[ownedTokensIds[i]].sold == true
-            ) {
-                ownedTokens[currentTokenOwned] = tokenIdToToken[
-                    ownedTokensIds[i]
-                ];
-
-                currentTokenOwned++;
-            }
-        }
-
-        return (collections, tokens, ownedTokens);
+        return tokens;
     }
 
     function fetchTokenOffers(uint256 _tokenId)
         public
         view
+        virtual
+        override
         returns (Offer[] memory)
     {
-        require(tokenIdToToken[_tokenId].exists == true, "Market: wrong token");
-        require(
-            msg.sender == tokenIdToToken[_tokenId].seller,
-            "Market: not a token owner"
-        );
         return tokenIdToOffers[_tokenId];
     }
 
-    function createCollection(uint256 _collectionId) public payable {
-        require(
-            collectionIdToCollection[_collectionId].exists == false,
-            "Market: existing collection"
-        );
-
-        uint256[] memory emptyTokensIndexes;
-        collectionIdToCollection[_collectionId] = Collection(
-            collectionsCount.current(),
-            _collectionId,
-            msg.sender,
-            Counters.Counter(0),
-            Counters.Counter(0),
-            emptyTokensIndexes,
-            true
-        );
-
-        collectionsIdsByOwner[msg.sender].push(_collectionId);
-        collectionIndexToId[collectionsCount.current()] = _collectionId;
-        ownerHasCollections[msg.sender] = true;
-
-        collectionsCount.increment();
+    function createCollection(uint256 _collectionId)
+        public
+        payable
+        virtual
+        override
+        nonReentrant
+    {
+        ICollecion(collection).mint(msg.sender, _collectionId);
 
         emit CollectionCreated(msg.sender, _collectionId);
     }
@@ -362,31 +65,25 @@ contract Market is ERC1155Receiver, ReentrancyGuard, Ownable, Utils {
     function mintToken(uint256 _tokenId, uint256 _collectionId)
         public
         payable
+        virtual
+        override
         nonReentrant
     {
         require(
-            collectionIdToCollection[_collectionId].exists == true,
-            "Market: not existing collection"
+            ICollecion(collection).isCreator(_collectionId, msg.sender),
+            "Marketplace: not a collection owner"
         );
+
+        INFT(token).mint(msg.sender, _tokenId);
 
         tokenIdToToken[_tokenId] = Token(
-            tokensCount.current(),
             _tokenId,
+            _collectionId,
+            msg.sender,
+            true,
             TOKEN_PRICE,
-            payable(msg.sender),
-            address(0),
-            Counters.Counter(0),
-            false,
-            true
+            Counters.Counter(0)
         );
-
-        // Mint the token
-        IToken(token).mint(_tokenId, msg.sender);
-
-        collectionIdToCollection[_collectionId].tokensCount.increment();
-        collectionIdToCollection[_collectionId].tokensIds.push(_tokenId);
-
-        tokensCount.increment();
 
         emit TokenMinted(msg.sender, _collectionId, _tokenId, TOKEN_PRICE);
     }
@@ -394,166 +91,104 @@ contract Market is ERC1155Receiver, ReentrancyGuard, Ownable, Utils {
     function buyToken(uint256 _tokenId, uint256 _collectionId)
         public
         payable
+        virtual
+        override
         nonReentrant
     {
         require(
-            tokenIdToToken[_tokenId].exists == true,
-            "Market: not existing token"
+            tokenIdToToken[_tokenId].collectionId == _collectionId &&
+                tokenIdToToken[_tokenId].forSale == true,
+            "Marketplace: not existing token or token not for sale"
         );
-        require(
-            tokenIdToToken[_tokenId].seller != address(0),
-            "Market: token sold"
-        );
-        require(
-            tokenIdToToken[_tokenId].owner == address(0),
-            "Market: token not for sale"
-        );
-        require(
-            tokenIdToToken[_tokenId].seller != msg.sender,
-            "Market: you own the token"
-        );
-        require(
-            msg.value == tokenIdToToken[_tokenId].price,
-            "Market: amount not correct"
-        );
+        require(msg.value == TOKEN_PRICE, "Marketplace: amount not correct");
 
-        IToken(token).transferFrom(
-            tokenIdToToken[_tokenId].seller,
-            msg.sender,
-            _tokenId
-        );
-
-        tokenIdToToken[_tokenId].seller.transfer(msg.value);
+        tokenIdToToken[_tokenId].collectionId = 0;
         tokenIdToToken[_tokenId].owner = msg.sender;
-        // The price is set to 0 just once when the token is sold
+        tokenIdToToken[_tokenId].forSale = false;
         tokenIdToToken[_tokenId].price = 0;
-        // The sold flag set to true just once when the token is sold
-        tokenIdToToken[_tokenId].sold = true;
-        tokenIdToToken[_tokenId].seller = payable(address(0));
 
-        // Store the tokens ids being sold, so we can use them when fetch the market data
-        ownedTokensIds.push(_tokenId);
+        address owner = INFT(token).ownerOf(_tokenId);
+        INFT(token).transferFrom(owner, msg.sender, _tokenId);
 
-        collectionIdToCollection[_collectionId].tokensSold.increment();
-        ownedTokensCountByOwner[msg.sender].increment();
-
-        emit TokenSold(
-            tokenIdToToken[_tokenId].seller,
-            msg.sender,
-            _tokenId,
-            _collectionId,
-            msg.value
-        );
+        emit TokenSold(owner, msg.sender, _tokenId, _collectionId, msg.value);
     }
 
-    function listTokenForSale(uint256 _tokenId) public nonReentrant {
+    function listTokenForSale(uint256 _tokenId)
+        public
+        virtual
+        override
+        nonReentrant
+    {
         require(
-            tokenIdToToken[_tokenId].seller == address(0),
-            "Market: token already for sale"
-        );
-        require(
-            tokenIdToToken[_tokenId].exists == true,
-            "Market: not existing token"
-        );
-        require(
-            tokenIdToToken[_tokenId].owner == msg.sender,
-            "Market: you are not the owner"
+            tokenIdToToken[_tokenId].collectionId == 0 &&
+                tokenIdToToken[_tokenId].owner == msg.sender &&
+                tokenIdToToken[_tokenId].forSale == false,
+            "Marketplace: cannot sale"
         );
 
-        tokenIdToToken[_tokenId].seller = payable(msg.sender);
-        tokenIdToToken[_tokenId].owner = address(0);
-
-        // Lock the token so it can't be transferred while it is for ongoing sale
-        IToken(token).lock(_tokenId);
+        _lockToken(_tokenId);
+        tokenIdToToken[_tokenId].forSale = true;
 
         emit TokenListedForSale(msg.sender, _tokenId);
     }
 
-    // Makes an offer for a token for sale
-    function makeOffer(uint256 _tokenId) public payable {
+    function makeOffer(uint256 _tokenId) public payable virtual override {
+        address seller = INFT(token).ownerOf(_tokenId);
+        require(tokenIdToToken[_tokenId].collectionId == 0 &&
+            tokenIdToToken[_tokenId].forSale, "Marketplace: not for sale");
+        require(seller != msg.sender, "Marketplace: you are the owner");
         require(
-            tokenIdToToken[_tokenId].exists == true,
-            "Market: not existing token"
+            msg.value > 0,
+            "Marketplace: offer price must be at least one wei"
         );
-        require(
-            tokenIdToToken[_tokenId].seller != address(0),
-            "Market: token not for sale"
-        );
-        require(
-            tokenIdToToken[_tokenId].owner == address(0),
-            "Market: token not for sale"
-        );
-        require(msg.value > 0, "Market: offer price must be at least one wei");
 
-        uint256 offerId = tokenIdToToken[_tokenId].offersCount.current();
+        uint256 offerId = tokenIdToOffers[_tokenId].length;
+
         tokenIdToOffers[_tokenId].push(
-            Offer(offerId, payable(msg.sender), msg.value, true)
+            Offer(offerId, payable(msg.sender), msg.value)
         );
 
         tokenIdToToken[_tokenId].offersCount.increment();
 
         // Locks an ether so it can't be withdrawn from
-        // the contract during a token sale
+        // the contract during the token sale
         lockedAmount += msg.value;
 
-        emit OfferCreated(
-            tokenIdToToken[_tokenId].seller,
-            msg.sender,
-            _tokenId,
-            offerId,
-            msg.value
-        );
+        emit OfferCreated(seller, msg.sender, _tokenId, offerId, msg.value);
     }
 
-    // The user accepts an another user offer for the token being listed for a sale
     function acceptOffer(uint256 _tokenId, uint256 _offerId)
         public
+        virtual
+        override
         nonReentrant
     {
         require(
-            tokenIdToToken[_tokenId].exists == true,
-            "Market: not existing token"
+            INFT(token).ownerOf(_tokenId) == msg.sender,
+            "Marketplace: you are not the owner"
         );
+        require(tokenIdToToken[_tokenId].collectionId == 0 &&
+            tokenIdToToken[_tokenId].forSale, "Marketplace: not for sale");
         require(
-            tokenIdToToken[_tokenId].owner == address(0),
-            "Market: token sold"
-        );
-        require(
-            tokenIdToToken[_tokenId].seller == msg.sender,
-            "Market: not a token owner"
-        );
-        require(
-            tokenIdToOffers[_tokenId][_offerId].exists == true,
-            "Market: not existing offer"
+            tokenIdToOffers[_tokenId][_offerId].id == _offerId,
+            "Marketplace: not existing offer"
         );
 
         address oferror = tokenIdToOffers[_tokenId][_offerId].offeror;
         uint256 price = tokenIdToOffers[_tokenId][_offerId].price;
 
-        // Unlocks the token before the transfer
-        IToken(token).unlock(_tokenId);
+        _unlockToken(_tokenId);
+        INFT(token).transferFrom(msg.sender, oferror, _tokenId);
 
-        // Transfers the token to the buyer
-        IToken(token).transferFrom(msg.sender, oferror, _tokenId);
+        lockedAmount -= price;
 
-        lockedAmount -= tokenIdToOffers[_tokenId][_offerId].price;
-
-        // Transfers the offerror's price to the seller
-        payable(msg.sender).transfer(tokenIdToOffers[_tokenId][_offerId].price);
-
-        ownedTokensCountByOwner[oferror].increment();
-        ownedTokensCountByOwner[msg.sender].decrement();
-
-        tokenIdToToken[_tokenId].owner = oferror;
-        tokenIdToToken[_tokenId].seller = payable(address(0));
+        payable(msg.sender).transfer(
+            tokenIdToOffers[_tokenId][_offerId].price
+        );
 
         // Returns the eth amount to the other users who had
         // a locked amount by making an offer but didn't get the token
-        for (
-            uint256 i = 0;
-            i < tokenIdToToken[_tokenId].offersCount.current();
-            i++
-        ) {
+        for (uint256 i = 0; i < tokenIdToOffers[_tokenId].length; i++) {
             if (i != _offerId) {
                 lockedAmount -= tokenIdToOffers[_tokenId][i].price;
                 tokenIdToOffers[_tokenId][i].offeror.transfer(
@@ -562,27 +197,29 @@ contract Market is ERC1155Receiver, ReentrancyGuard, Ownable, Utils {
             }
         }
 
-        delete tokenIdToOffers[_tokenId];
+        tokenIdToToken[_tokenId].owner = oferror;
+        tokenIdToToken[_tokenId].forSale = false;
         tokenIdToToken[_tokenId].offersCount.reset();
+        delete tokenIdToOffers[_tokenId];
 
-        emit OfferAccepted(msg.sender, oferror, _tokenId, price);
+        emit OfferAccepted(msg.sender, oferror, _tokenId, _offerId, price);
+    }
+
+    function _lockToken(uint256 _tokenId) internal virtual {
+        INFT(token).lock(_tokenId);
+    }
+
+    function _unlockToken(uint256 _tokenId) internal virtual {
+        INFT(token).unlock(_tokenId);
     }
 
     // Could be used if there is some market listing tokens price, i.e. the fee for the market
-    function withdraw() external onlyOwner {
+    function withdraw() external virtual override onlyOwner {
         require(
             address(this).balance - lockedAmount > 0,
-            "Market: nothing to withdraw"
+            "Marketplace: nothing to withdraw"
         );
 
         payable(owner()).transfer(address(this).balance - lockedAmount);
-    }
-
-    function uri(uint256 _id) public pure returns (string memory) {
-        string memory hexstringId = uint2hex64str(_id, 64);
-        return
-            string(
-                abi.encodePacked("https://ipfs.io/ipfs/f01551220", hexstringId)
-            );
     }
 }
