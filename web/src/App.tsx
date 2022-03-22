@@ -5,17 +5,18 @@ import Toolbar from "@mui/material/Toolbar"
 import Typography from "@mui/material/Typography"
 import Button from "@mui/material/Button"
 import Container from "@mui/material/Container"
+import { useEffect, useReducer } from "react"
+import { toast } from "react-toastify"
+import { useErrorBoundary } from "use-error-boundary"
 
 import useWeb3Connect from "./hooks/useWeb3Connect"
 import useWeb3Contracts from "./hooks/useWeb3Contracts"
 import NetworkInfo from "./components/NetworkInfo"
 import Marketplace from "./components/Marketplace"
 import reducer, { initialState } from "./reducer"
-import { useReducer } from "react"
-import { useErrorBoundary } from "use-error-boundary"
 
-export const Home = (): JSX.Element => {
-  const { ErrorBoundary } = useErrorBoundary()
+export const App = (): JSX.Element => {
+  const { ErrorBoundary, didCatch, error } = useErrorBoundary()
   const [state, dispatch] = useReducer(reducer, initialState)
   const { marketAssetsLoading, ownersAssetsLoading } = state
   const [
@@ -36,6 +37,12 @@ export const Home = (): JSX.Element => {
     },
     { marketContract, nftContract, collectionContract, ownersAssets, marketAssets },
   ] = useWeb3Contracts(state, dispatch)
+
+  useEffect(() => {
+    if (didCatch && error) {
+      toast.error(error.message)
+    }
+  }, [didCatch, error])
 
   return (
     <ErrorBoundary>
@@ -117,4 +124,4 @@ export const Home = (): JSX.Element => {
   )
 }
 
-export default Home
+export default App

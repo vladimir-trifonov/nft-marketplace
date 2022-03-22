@@ -36,7 +36,7 @@ export function ellipseAddress(address = "", width = 10): string {
   return `${address.slice(0, width)}...${address.slice(-width)}`
 }
 
-export function groupBy(list: any, keyGetter: any) {
+export function groupBy(list: any, keyGetter: (item: any) => string) {
   const map = new Map()
   list.forEach((item: any) => {
        const key = keyGetter(item)

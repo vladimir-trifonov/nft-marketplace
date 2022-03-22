@@ -5,8 +5,11 @@ import Tab from "@mui/material/Tab"
 import TabContext from "@mui/lab/TabContext"
 import TabList from "@mui/lab/TabList"
 import TabPanel from "@mui/lab/TabPanel"
+import { providers, Contract } from "ethers"
+
 import MarketAssets from "./MarketAssets"
 import OwnerAssets from "./OwnerAssets"
+import { AssetType, OfferType } from "../types"
 
 const Marketplace = ({
   address,
@@ -29,23 +32,23 @@ const Marketplace = ({
   fetchTokenOffers
 }: {
   address: string
-  onBuyToken: any
-  onListTokenForSale: any
-  marketAssets: any
-  fetchMarketAssets: any
-  web3Provider: any
-  marketContract: any
-  collectionContract: any
-  nftContract: any
-  onCreateCollection: any
-  onCreateToken: any
-  fetchOwnersAssets: any
-  ownersAssets: any
-  onMakeTokenOffer: any
-  onAcceptTokenOffer: any
+  onBuyToken: (tokenId: string, price: number, collectionId: string) => void
+  onListTokenForSale: (tokenId: string) => void
+  marketAssets: AssetType[]
+  fetchMarketAssets: () => void
+  web3Provider: providers.Provider
+  marketContract: Contract
+  collectionContract: Contract
+  nftContract: Contract
+  onCreateCollection: (id: string) => void
+  onCreateToken: (id: string, collectionId: string) => void
+  fetchOwnersAssets: () => void
+  ownersAssets: AssetType[]
+  onMakeTokenOffer: (tokenId: string, price: string) => void
+  onAcceptTokenOffer: (tokenId: string, offerId: number) => void
   marketAssetsLoading: boolean
   ownersAssetsLoading: boolean
-  fetchTokenOffers: any
+  fetchTokenOffers: (tokenId: string) => Promise<OfferType[]>
 }): JSX.Element => {
   const [tab, setTab] = useState("market")
 
@@ -60,7 +63,7 @@ const Marketplace = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [marketContract, web3Provider, address, tab])
 
-  const handleChangeTab = (_: any, newValue: string) => {
+  const handleChangeTab = (_: unknown, newValue: string) => {
     setTab(newValue)
   }
 

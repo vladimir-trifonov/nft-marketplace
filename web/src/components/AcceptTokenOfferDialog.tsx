@@ -8,8 +8,10 @@ import Button from "@mui/material/Button"
 import Dialog from "@mui/material/Dialog"
 import DialogContent from "@mui/material/DialogContent"
 import DialogActions from "@mui/material/DialogActions"
+
 import BootstrapDialogTitle from "./BootstrapDialogTitle"
 import { ellipseAddress } from "../helpers/utilities"
+import { AssetTokenType, OfferType } from "../types"
 
 const ListWrapper = styled("div")(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
@@ -22,14 +24,14 @@ const AcceptTokenOfferDialog = ({
   onCloseAcceptAnOffer,
   fetchTokenOffers,
 }: {
-  token: any
-  openAcceptAnOffer: any
-  onAcceptTokenOffer: any
-  onCloseAcceptAnOffer: any
-  fetchTokenOffers: any
+  token: AssetTokenType
+  openAcceptAnOffer: boolean
+  onAcceptTokenOffer: (tokenId: string, offerId: number) => void
+  onCloseAcceptAnOffer: () => void
+  fetchTokenOffers: (tokenId: string) => Promise<OfferType[]>
 }): JSX.Element => {
-  const [currentOffer, setCurrentOffer] = useState(null)
-  const [tokenOffers, setTokenOffers] = useState<any[] | null>(null)
+  const [currentOffer, setCurrentOffer] = useState<OfferType | null>(null)
+  const [tokenOffers, setTokenOffers] = useState<OfferType[] | null>(null)
 
   useEffect(() => {
     const onFetchTokenOffers = async () => {
@@ -53,7 +55,7 @@ const AcceptTokenOfferDialog = ({
 
   const handleAcceptAnOffer = async () => {
     onCloseAcceptAnOffer()
-    if (currentOffer) onAcceptTokenOffer(token.id, (currentOffer as any).id)
+    if (currentOffer) onAcceptTokenOffer(token.id, currentOffer.id)
   }
 
   return (
@@ -105,8 +107,8 @@ const AcceptTokenOfferDialog = ({
                       onClick={() =>
                         setCurrentOffer(
                           tokenOffers.find(
-                            ({ id }: { id: string }) => id === item.id,
-                          ),
+                            ({ id }) => id === item.id,
+                          ) || null
                         )
                       }
                     />

@@ -4,9 +4,11 @@ import Button from "@mui/material/Button"
 import Dialog from "@mui/material/Dialog"
 import DialogContent from "@mui/material/DialogContent"
 import DialogActions from "@mui/material/DialogActions"
+
 import BootstrapDialogTitle from "./BootstrapDialogTitle"
 import { add } from "../services/ipfs"
 import { ImageSelect } from "./ImageSelect"
+import { AssetType } from "../types"
 
 const CreateTokenDialog = ({
   openCreateToken,
@@ -14,25 +16,25 @@ const CreateTokenDialog = ({
   onCloseCreateToken,
   collection,
 }: {
-  openCreateToken: any
-  onCreateToken: any
-  onCloseCreateToken: any
-  collection: any
+  openCreateToken: boolean
+  onCreateToken: (id: string, collectionId: string) => void
+  onCloseCreateToken: () => void
+  collection: AssetType
 }): JSX.Element => {
   const [tokenTitle, setTokenTitle] = useState("")
   const tokenTitleRef = useRef("")
   const [tokenDesc, setTokenDesc] = useState("")
   const tokenDescRef = useRef("")
-  const [image, setImage] = useState("")
+  const [image, setImage] = useState<{ name: string, size: string } | null>(null)
 
   const handleCreateToken = async () => {
     onCloseCreateToken()
-    const url = await add(image as any, true)
+    const url = await add(image, true)
     const id = await add(Buffer.from(JSON.stringify({ name: tokenTitle, description: tokenDesc, image: url })))
     setTokenTitle("")
     setTokenDesc("")
 
-    if (id && collection) onCreateToken(id, (collection as any).id)
+    if (id && collection) onCreateToken(id, collection.id)
   }
 
   return (
@@ -66,7 +68,7 @@ const CreateTokenDialog = ({
           label="Title"
           variant="standard"
           onChange={() => {
-            setTokenTitle((tokenTitleRef.current as any)?.value)
+            setTokenTitle((tokenTitleRef.current as any)?.value!)
           }}
         />
         <TextField
@@ -77,7 +79,7 @@ const CreateTokenDialog = ({
           label="Description"
           variant="standard"
           onChange={() => {
-            setTokenDesc((tokenDescRef.current as any)?.value)
+            setTokenDesc((tokenDescRef.current as any)?.value!)
           }}
           sx={{ mt: 1, mb: 2 }}
         />

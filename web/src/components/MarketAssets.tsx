@@ -10,8 +10,10 @@ import Card from "@mui/material/Card"
 import CardActions from "@mui/material/CardActions"
 import CardContent from "@mui/material/CardContent"
 import CardMedia from "@mui/material/CardMedia"
-import MakeTokenOfferDialog from "./MakeTokenOfferDialog"
 import LinearProgress from "@mui/material/LinearProgress"
+
+import MakeTokenOfferDialog from "./MakeTokenOfferDialog"
+import { AssetType, AssetTokenType } from "../types"
 
 const ListWrapper = styled("div")(() => ({
   backgroundColor: "transparent"
@@ -23,13 +25,13 @@ const MarketAssets = ({
   onMakeTokenOffer,
   loading,
 }: {
-  marketAssets: any
-  onBuyToken: any
-  onMakeTokenOffer: any
+  marketAssets: AssetType[]
+  onBuyToken: (tokenId: string, price: number, collectionId: string) => void
+  onMakeTokenOffer: (tokenId: string, price: string) => void
   loading: boolean
 }): JSX.Element => {
-  const [currentMarketCollection, setCurrentMarketCollection] = useState(null)
-  const [currentToken, setCurrentToken] = useState(null)
+  const [currentMarketCollection, setCurrentMarketCollection] = useState<AssetType | null>(null)
+  const [currentToken, setCurrentToken] = useState<AssetTokenType | null>(null)
   const [openMakeAnOffer, setOpenMakeAnOffer] = useState(false)
 
   useEffect(() => {
@@ -41,12 +43,12 @@ const MarketAssets = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [marketAssets])
 
-  const handleBuyToken = (token: any) => {
+  const handleBuyToken = (token: AssetTokenType) => {
     setCurrentToken(token)
-    onBuyToken(token.id, token.price, (currentMarketCollection as any).id)
+    onBuyToken(token.id, token.price, currentMarketCollection!.id)
   }
 
-  const handleOpenMakeAnOffer = (token: any) => {
+  const handleOpenMakeAnOffer = (token: AssetTokenType) => {
     setCurrentToken(token)
     setOpenMakeAnOffer(true)
   }
@@ -70,16 +72,16 @@ const MarketAssets = ({
                     backgroundColor: "rgba(46,24,70,0.3)"
                   }}
                 >
-                  {marketAssets?.map((item: any) => (
+                  {marketAssets?.map((item) => (
                     <ListItem
                       sx={{
                         cursor: "pointer",
                         backgroundColor:
-                          item.id === (currentMarketCollection as any)?.id
+                          item.id === currentMarketCollection?.id
                             ? "rgba(255,255,255,0.4)"
                             : "rgba(46,24,70,0.7)",
                         color:
-                          item.id === (currentMarketCollection as any)?.id
+                          item.id === currentMarketCollection?.id
                             ? "#000000"
                             : "#ffffff",
                       }}
@@ -90,8 +92,8 @@ const MarketAssets = ({
                         onClick={() =>
                           setCurrentMarketCollection(
                             marketAssets.find(
-                              ({ id }: { id: string }) => id === item.id,
-                            ),
+                              ({ id }) => id === item.id,
+                            ) || null
                           )
                         }
                       />
@@ -102,9 +104,9 @@ const MarketAssets = ({
             </ListWrapper>
           </Grid>
           <Grid item xs={8}>
-            {!!(currentMarketCollection as any)?.tokens?.length && (
+            {!!currentMarketCollection?.tokens?.length && (
               <Grid container spacing={1} alignItems="stretch">
-                {(currentMarketCollection as any).tokens.map((item: any) => (
+                {currentMarketCollection.tokens.map((item: AssetTokenType) => (
                   <Grid key={item.id} height="240" xs={4} item>
                     <Card
                       sx={{
@@ -159,7 +161,7 @@ const MarketAssets = ({
         openMakeAnOffer={openMakeAnOffer}
         onMakeTokenOffer={onMakeTokenOffer}
         onCloseMakeAnOffer={() => setOpenMakeAnOffer(false)}
-        token={currentToken}
+        token={currentToken!}
       />
     </>
   )

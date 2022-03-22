@@ -7,8 +7,8 @@ export const ImageSelect = ({
   image,
   setImage,
 }: {
-  image: any
-  setImage: any
+  image: { name: string, size: string } | null
+  setImage: (image: { name: string, size: string }) => void
 }) => {
   const [imagePreview, setImagePreview] = useState("")
 
@@ -53,7 +53,7 @@ export const ImageSelect = ({
               alt="upload nft"
             />
             <h5>
-              {image.name} <Chip sx={{ ml: 1 }} label={`${image.size} kb`} />
+              {image!.name} <Chip sx={{ ml: 1 }} label={`${image!.size} kb`} />
             </h5>
           </div>
         )}

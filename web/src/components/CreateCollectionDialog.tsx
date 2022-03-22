@@ -4,6 +4,7 @@ import Button from "@mui/material/Button"
 import Dialog from "@mui/material/Dialog"
 import DialogContent from "@mui/material/DialogContent"
 import DialogActions from "@mui/material/DialogActions"
+
 import BootstrapDialogTitle from "./BootstrapDialogTitle"
 import { add } from "../services/ipfs"
 
@@ -12,9 +13,9 @@ const CreateCollectionDialog = ({
   onCreateCollection,
   openCreateCollection,
 }: {
-  onCloseCreateCollection: any
-  onCreateCollection: any
-  openCreateCollection: any
+  onCloseCreateCollection: () => void
+  onCreateCollection: (collectionId: string) => void
+  openCreateCollection: boolean
 }): JSX.Element => {
   const [collectionTitle, setCollectionTitle] = useState("")
   const collectionTitleRef = useRef("")
@@ -52,7 +53,7 @@ const CreateCollectionDialog = ({
           label="Title"
           variant="standard"
           onChange={() => {
-            setCollectionTitle((collectionTitleRef.current as any)?.value)
+            setCollectionTitle((collectionTitleRef.current as any)?.value!)
           }}
         />
       </DialogContent>

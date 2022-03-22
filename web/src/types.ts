@@ -17,142 +17,96 @@ export interface IChainData {
   native_currency: IAssetData
 }
 
-export interface ITxData {
-  from: string
-  to: string
-  nonce: string
-  gasPrice: string
-  gasLimit: string
-  value: string
-  data: string
+export type StateType = {
+  provider?: any
+  web3Provider?: any
+  address?: string
+  chainId?: number
+  ownersAssets?: any[]
+  marketAssets?: any[]
+  marketAssetsLoading: boolean
+  ownersAssetsLoading: boolean
 }
 
-export interface IBlockScoutTx {
-  value: string
-  txreceipt_status: string
-  transactionIndex: string
-  to: string
-  timeStamp: string
-  nonce: string
-  isError: string
-  input: string
-  hash: string
-  gasUsed: string
-  gasPrice: string
-  gas: string
-  from: string
-  cumulativeGasUsed: string
-  contractAddress: string
-  confirmations: string
-  blockNumber: string
-  blockHash: string
-}
-
-export interface IBlockScoutTokenTx {
-  value: string
-  transactionIndex: string
-  tokenSymbol: string
-  tokenName: string
-  tokenDecimal: string
-  to: string
-  timeStamp: string
-  nonce: string
-  input: string
-  hash: string
-  gasUsed: string
-  gasPrice: string
-  gas: string
-  from: string
-  cumulativeGasUsed: string
-  contractAddress: string
-  confirmations: string
-  blockNumber: string
-  blockHash: string
-}
-
-export interface IParsedTx {
-  timestamp: string
-  hash: string
-  from: string
-  to: string
-  nonce: string
-  gasPrice: string
-  gasUsed: string
-  fee: string
-  value: string
-  input: string
-  error: boolean
-  asset: IAssetData
-  operations: ITxOperation[]
-}
-
-export interface ITxOperation {
-  asset: IAssetData
-  value: string
-  from: string
-  to: string
-  functionName: string
-}
-
-export interface IGasPricesResponse {
-  fastWait: number
-  avgWait: number
-  blockNum: number
-  fast: number
-  fastest: number
-  fastestWait: number
-  safeLow: number
-  safeLowWait: number
-  speed: number
-  block_time: number
-  average: number
-}
-
-export interface IGasPrice {
-  time: number
-  price: number
-}
-
-export interface IGasPrices {
-  timestamp: number
-  slow: IGasPrice
-  average: IGasPrice
-  fast: IGasPrice
-}
-
-export interface IMethodArgument {
-  type: string
-}
-
-export interface IMethod {
-  signature: string
-  name: string
-  args: IMethodArgument[]
-}
-
-export interface IBoxImage {
-  '@type': string
-  contentUrl: {
-    [label: string]: string
+export type ActionType =
+  | {
+    type: "SET_WEB3_PROVIDER"
+    provider?: StateType["provider"]
+    web3Provider?: StateType["web3Provider"]
+    address?: StateType["address"]
+    chainId?: StateType["chainId"]
   }
-}
-
-export interface IBoxProfile {
-  memberSince: string
-  coverPhoto: IBoxImage[]
-  location: string
-  emoji: string
-  job: string
-  employer: string
-  website: string
-  description: string
-  ethereum_proof: {
-    consent_msg: string
-    consent_signature: string
-    linked_did: string
+  | {
+    type: "SET_ADDRESS"
+    address?: StateType["address"]
+    ownersAssets?: StateType["ownersAssets"]
+    marketAssets?: StateType["marketAssets"]
   }
-  proof_did: string
-  github: string
-  image: IBoxImage[]
-  name: string
-}
+  | {
+    type: "SET_CHAIN_ID"
+    chainId?: StateType["chainId"]
+  }
+  | {
+    type: "RESET_WEB3_PROVIDER"
+  }
+  | {
+    type: "FETCH_OWNERS_ASSETS_START"
+    ownersAssetsLoading?: StateType["ownersAssetsLoading"]
+  }
+  | {
+    type: "FETCH_MARKET_ASSETS_START"
+    marketAssetsLoading?: StateType["marketAssetsLoading"]
+  }
+  | {
+    type: "FETCH_OWNERS_ASSETS_SUCCESS"
+    ownersAssets?: StateType["ownersAssets"]
+    ownersAssetsLoading?: StateType["ownersAssetsLoading"]
+  }
+  | {
+    type: "FETCH_MARKET_ASSETS_SUCCESS"
+    marketAssets?: StateType["marketAssets"]
+    marketAssetsLoading?: StateType["marketAssetsLoading"]
+  }
+
+  export type OfferType = {
+    id: number
+    offeror: string
+    price: number
+  }
+
+  export type AssetType = {
+    id: string
+    name: string
+    tokens: AssetTokenType[]
+    canCreateToken?: boolean
+  }
+
+  export type AssetTokenType = {
+    id: string
+    collectionId: string
+    price: number
+    forSale: boolean
+    owner: string
+    offersCount: number
+    acceptOffers?: boolean
+    canSale?: boolean
+    hasOffers?: boolean
+    description: string
+    name: string
+    image: string
+  }
+
+  export type TokenType = {
+    tokenId: string
+    collectionId: string
+    price: number
+    forSale: boolean
+    owner: string
+    offersCount: number
+  }
+
+  export type MetaType = {
+    name: string
+    image?: string
+    description?: string
+  }

@@ -4,7 +4,9 @@ import Button from "@mui/material/Button"
 import Dialog from "@mui/material/Dialog"
 import DialogContent from "@mui/material/DialogContent"
 import DialogActions from "@mui/material/DialogActions"
+
 import BootstrapDialogTitle from "./BootstrapDialogTitle"
+import { AssetTokenType } from "../types"
 
 const MakeTokenOfferDialog = ({
   openMakeAnOffer,
@@ -12,18 +14,18 @@ const MakeTokenOfferDialog = ({
   onCloseMakeAnOffer,
   token,
 }: {
-  openMakeAnOffer: any
-  onMakeTokenOffer: any
-  onCloseMakeAnOffer: any
-  token: any
+  openMakeAnOffer: boolean
+  onMakeTokenOffer: (tokenId: string, price: string) => void
+  onCloseMakeAnOffer: () => void
+  token: AssetTokenType
 }): JSX.Element => {
-  const [offerPrice, setOfferPrice] = useState("")
+  const [offerPrice, setOfferPrice] = useState<string>("")
   const offerPriceRef = useRef("")
 
   const handleMakeAnOffer = async () => {
     onCloseMakeAnOffer()
     setOfferPrice("")
-    onMakeTokenOffer(token.id, offerPrice)
+    onMakeTokenOffer(token.id, offerPrice!)
   }
 
   return (
@@ -52,7 +54,7 @@ const MakeTokenOfferDialog = ({
           label="Price"
           variant="standard"
           onChange={() => {
-            setOfferPrice((offerPriceRef.current as any)?.value)
+            setOfferPrice((offerPriceRef.current as any)?.value!)
           }}
         />
       </DialogContent>

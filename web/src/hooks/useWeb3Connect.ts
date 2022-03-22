@@ -1,10 +1,11 @@
-import { useCallback, useEffect } from "react"
+import { Dispatch, useCallback, useEffect } from "react"
 import WalletConnectProvider from "@walletconnect/web3-provider"
 import { providers } from "ethers"
 import Web3Modal from "web3modal"
 import { toast } from "react-toastify"
 
 import { getChainData } from "../helpers/utilities"
+import { StateType } from "../types"
 
 const INFURA_ID = process.env.REACT_APP_INFURA_ID
 
@@ -17,7 +18,7 @@ const providerOptions = {
   }
 }
 
-let web3Modal: any
+let web3Modal: Web3Modal
 if (typeof window !== "undefined") {
   web3Modal = new Web3Modal({
     cacheProvider: true,
@@ -25,7 +26,7 @@ if (typeof window !== "undefined") {
   })
 }
 
-const useWeb3Connect = (state: any, dispatch: any): any => {
+const useWeb3Connect = (state: StateType, dispatch: Dispatch<any>): any => {
   const { provider, chainId } = state
   const chainData = getChainData(chainId)
 
@@ -46,7 +47,6 @@ const useWeb3Connect = (state: any, dispatch: any): any => {
       })
     } catch (e: any) {
       toast.info(e.message)
-      console.warn(e)
     }
   }, [dispatch])
 
@@ -62,7 +62,6 @@ const useWeb3Connect = (state: any, dispatch: any): any => {
         })
       } catch (e: any) {
         toast.info(e.message)
-        console.warn(e)
       }
     },
     [dispatch, provider]

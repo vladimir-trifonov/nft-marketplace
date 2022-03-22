@@ -10,10 +10,13 @@ import Card from "@mui/material/Card"
 import CardActions from "@mui/material/CardActions"
 import CardContent from "@mui/material/CardContent"
 import CardMedia from "@mui/material/CardMedia"
+import LinearProgress from "@mui/material/LinearProgress"
+
 import CreateCollectionDialog from "./CreateCollectionDialog"
 import CreateTokenDialog from "./CreateTokenDialog"
 import AcceptTokenOfferDialog from "./AcceptTokenOfferDialog"
-import LinearProgress from "@mui/material/LinearProgress"
+
+import { AssetType, AssetTokenType, OfferType } from "../types"
 
 const ListWrapper = styled("div")(() => ({
   backgroundColor: "transparent"
@@ -28,19 +31,19 @@ const OwnerAssets = ({
   onAcceptTokenOffer,
   loading,
 }: {
-  fetchTokenOffers: any
-  onListTokenForSale: any
-  onCreateCollection: any
-  onCreateToken: any
-  ownersAssets: any
-  onAcceptTokenOffer: any
+  fetchTokenOffers: (tokenId: string) => Promise<OfferType[]>
+  onListTokenForSale: (id: string) => void
+  onCreateCollection: (id: string) => void
+  onCreateToken: (id: string, collectionId: string) => void
+  ownersAssets: AssetType[]
+  onAcceptTokenOffer: (tokenId: string, offerId: number) => void
   loading: boolean
 }): JSX.Element => {
   const [openCreateCollection, setOpenCreateCollection] = useState(false)
-  const [currentCollection, setCurrentCollection] = useState(null)
+  const [currentCollection, setCurrentCollection] = useState<AssetType | null>(null)
   const [openCreateToken, setOpenCreateToken] = useState(false)
   const [openAcceptAnOffer, setOpenAcceptAnOffer] = useState(false)
-  const [currentToken, setCurrentToken] = useState(null)
+  const [currentToken, setCurrentToken] = useState<AssetTokenType | null>(null)
 
   useEffect(() => {
     if (ownersAssets?.length) {
@@ -59,12 +62,12 @@ const OwnerAssets = ({
     setOpenCreateToken(true)
   }
   
-  const handleListTokenForSale = (token: any) => {
+  const handleListTokenForSale = (token: AssetTokenType) => {
     setCurrentToken(token)
     onListTokenForSale(token.id)
   }
   
-  const handleOpenAcceptAnOffer = (token: any) => {
+  const handleOpenAcceptAnOffer = (token: AssetTokenType) => {
     setCurrentToken(token)
     setOpenAcceptAnOffer(true)
   }
@@ -95,16 +98,16 @@ const OwnerAssets = ({
                     backgroundColor: "rgba(46,24,70,0.3)"
                   }}
                 >
-                  {ownersAssets?.map((item: any) => (
+                  {ownersAssets?.map((item) => (
                     <ListItem
                       sx={{
                         cursor: "pointer",
                         backgroundColor:
-                          item.id === (currentCollection as any)?.id
+                          item.id === currentCollection?.id
                             ? "rgba(255,255,255,0.4)"
                             : "rgba(46,24,70,0.7)",
                         color:
-                          item.id === (currentCollection as any)?.id
+                          item.id === currentCollection?.id
                             ? "#000000"
                             : "#ffffff",
                       }}
@@ -115,8 +118,8 @@ const OwnerAssets = ({
                         onClick={() =>
                           setCurrentCollection(
                             ownersAssets.find(
-                              ({ id }: { id: string }) => id === item.id,
-                            ),
+                              ({ id }) => id === item.id,
+                            ) || null
                           )
                         }
                       />
@@ -127,7 +130,7 @@ const OwnerAssets = ({
             </ListWrapper>
           </Grid>
           <Grid item xs={8}>
-            {(currentCollection as any)?.canCreateToken && (
+            {currentCollection?.canCreateToken && (
               <Button
                 sx={{ mb: 1 }}
                 variant="outlined"
@@ -137,9 +140,9 @@ const OwnerAssets = ({
                 Create Token
               </Button>
             )}
-            {!!(currentCollection as any)?.tokens?.length && (
+            {!!currentCollection?.tokens?.length && (
               <Grid container spacing={1} alignItems="stretch">
-                {(currentCollection as any).tokens.map((item: any) => (
+                {currentCollection.tokens.map((item: AssetTokenType) => (
                   <Grid
                     key={item.id}
                     minHeight="240"
@@ -197,14 +200,14 @@ const OwnerAssets = ({
         openCreateCollection={openCreateCollection}
       />
       <CreateTokenDialog
-        collection={currentCollection}
+        collection={currentCollection!}
         openCreateToken={openCreateToken}
         onCreateToken={onCreateToken}
         onCloseCreateToken={() => setOpenCreateToken(false)}
       />
       <AcceptTokenOfferDialog
         fetchTokenOffers={fetchTokenOffers}
-        token={currentToken}
+        token={currentToken!}
         openAcceptAnOffer={openAcceptAnOffer}
         onAcceptTokenOffer={onAcceptTokenOffer}
         onCloseAcceptAnOffer={() => setOpenAcceptAnOffer(false)}

@@ -1,21 +1,23 @@
+import { toast } from 'react-toastify'
+import { Dispatch, useCallback, useEffect, useState } from 'react'
+import axios from 'axios'
+import { utils, Contract } from 'ethers'
+
+import { getContract } from '../helpers/ethers'
+import { groupBy, ellipseAddress } from '../helpers/utilities'
 import NFT from '../constants/abis/NFTEnumerable.json'
 import Collection from '../constants/abis/Collection.json'
 import Market from '../constants/abis/Market.json'
-import { toast } from 'react-toastify'
-import { useCallback, useEffect, useState } from 'react'
-import { getContract } from '../helpers/ethers'
-import { groupBy, ellipseAddress } from '../helpers/utilities'
-import axios from 'axios'
-import { utils } from 'ethers'
+import { StateType, TokenType, MetaType, AssetType, OfferType } from '../types'
 
-const nftContractAddress = process.env.REACT_APP_NFT_CONTRACT_ADDRESS as string
+const nftContractAddress = process.env.REACT_APP_NFT_CONTRACT_ADDRESS
 const collectionContractAddress = process.env
-  .REACT_APP_COLLECTION_CONTRACT_ADDRESS as string
+  .REACT_APP_COLLECTION_CONTRACT_ADDRESS
 const marketContractAddress = process.env
-  .REACT_APP_MARKET_CONTRACT_ADDRESS as string
+  .REACT_APP_MARKET_CONTRACT_ADDRESS
 const zeroAddr = '0x0000000000000000000000000000000000000000'
 
-const useWeb3Contracts = (state: any, dispatch: any): any => {
+const useWeb3Contracts = (state: StateType, dispatch: Dispatch<any>): any => {
   const {
     web3Provider,
     chainId,
@@ -26,9 +28,9 @@ const useWeb3Contracts = (state: any, dispatch: any): any => {
     ownersAssetsLoading,
   } = state
 
-  const [nftContract, setNFTContract] = useState<null | any>(null)
-  const [collectionContract, setCollectionContract] = useState<null | any>(null)
-  const [marketContract, setMarketContract] = useState<null | any>(null)
+  const [nftContract, setNFTContract] = useState<null | Contract>(null)
+  const [collectionContract, setCollectionContract] = useState<null | Contract>(null)
+  const [marketContract, setMarketContract] = useState<null | Contract>(null)
 
   const clearContracts = () => {
     setNFTContract(null)
@@ -41,28 +43,27 @@ const useWeb3Contracts = (state: any, dispatch: any): any => {
       try {
         setNFTContract(
           getContract(
-            nftContractAddress as string,
+            nftContractAddress!,
             NFT.abi,
             web3Provider.getSigner(),
           ),
         )
         setCollectionContract(
           getContract(
-            collectionContractAddress as string,
+            collectionContractAddress!,
             Collection.abi,
             web3Provider.getSigner(),
           ),
         )
         setMarketContract(
           getContract(
-            marketContractAddress as string,
+            marketContractAddress!,
             Market.abi,
             web3Provider.getSigner(),
           ),
         )
       } catch (e: any) {
         toast.info(e.message)
-        console.warn(e)
       }
     },
     [web3Provider],
@@ -78,97 +79,91 @@ const useWeb3Contracts = (state: any, dispatch: any): any => {
 
   const onCreateCollection = async (id: string) => {
     try {
-      const transaction = await marketContract.createCollection(id)
+      const transaction = await marketContract!.createCollection(id)
       await transaction.wait()
     } catch (e: any) {
       toast.info(e.message)
-      console.warn(e)
     }
   }
 
   const onCreateToken = async (id: string, collectionId: string) => {
     try {
-      const transaction = await marketContract.mintToken(id, collectionId)
+      const transaction = await marketContract!.mintToken(id, collectionId)
       await transaction.wait()
     } catch (e: any) {
       toast.info(e.message)
-      console.warn(e)
     }
   }
 
   const onBuyToken = async (
     tokenId: string,
-    price: any,
+    price: number,
     collectionId: string,
   ) => {
     try {
-      const transaction = await marketContract.buyToken(tokenId, collectionId, {
+      const transaction = await marketContract!.buyToken(tokenId, collectionId, {
         value: price,
       })
       await transaction.wait()
     } catch (e: any) {
       toast.info(e.message)
-      console.warn(e)
     }
   }
 
   const onListTokenForSale = async (tokenId: string) => {
     try {
-      const transaction = await marketContract.listTokenForSale(tokenId)
+      const transaction = await marketContract!.listTokenForSale(tokenId)
       await transaction.wait()
     } catch (e: any) {
       toast.info(e.message)
-      console.warn(e)
     }
   }
 
   const onMakeTokenOffer = async (tokenId: string, price: string) => {
     try {
-      const transaction = await marketContract.makeOffer(tokenId, {
+      const transaction = await marketContract!.makeOffer(tokenId, {
         value: utils.parseEther(price.toString()),
       })
       await transaction.wait()
     } catch (e: any) {
       toast.info(e.message)
-      console.warn(e)
     }
   }
 
   const onAcceptTokenOffer = async (tokenId: string, offerId: number) => {
     try {
-      const transaction = await marketContract.acceptOffer(tokenId, offerId)
+      const transaction = await marketContract!.acceptOffer(tokenId, offerId)
       await transaction.wait()
     } catch (e: any) {
       toast.info(e.message)
-      console.warn(e)
     }
   }
 
-  const fetchTokenOffers = async (tokenId: string) => {
+  const fetchTokenOffers = async (tokenId: string): Promise<OfferType[] | undefined> => {
     try {
-      const tokenOffers = await marketContract.fetchTokenOffers(tokenId)
-      return tokenOffers?.map((offer: any, i: number) => ({
-        id: offer[0],
-        offeror: offer[1],
-        price: utils.formatEther(offer[2].toString()).toString(),
+      const tokenOffers = await marketContract!.fetchTokenOffers(tokenId)
+      return tokenOffers?.map((offer: OfferType, i: number) => ({
+        id: offer.id,
+        offeror: offer.offeror,
+        price: utils.formatEther(offer.price.toString()).toString(),
       }))
     } catch (e: any) {
       toast.info(e.message)
-      console.warn(e)
     }
   }
 
   const resolveCollectionsTokens = useCallback(async (
-    collectionsIds: any,
-    collectionsTokensGrouped: any,
+    collectionsIds: string[],
+    collectionsTokensGrouped: Map<string, any>,
     collectionsCanCreateTokens: boolean,
     includeForSaleInfo: boolean) => Promise.all(
       collectionsIds.map(async (collectionId: string) => {
-        const collectionUri = await collectionContract.uri(collectionId)
-        const collectionMeta: any = await axios.get(collectionUri)
+        const collectionUri = await collectionContract!.uri(collectionId)
+        const response = await axios.get(collectionUri)
+        const collectionMeta: MetaType = response.data
         return {
           id: collectionId,
-          name: collectionMeta.data.name,
+          name: collectionMeta.name,
           tokens:
             collectionsTokensGrouped.size === 0 ||
               !collectionsTokensGrouped.get(collectionId.toString())
@@ -176,14 +171,15 @@ const useWeb3Contracts = (state: any, dispatch: any): any => {
               : await Promise.all(
                 collectionsTokensGrouped
                   .get(collectionId.toString())
-                  ?.map(async (token: any) => {
-                    const tokenUri = await nftContract.uri(token.tokenId)
-                    const tokenMeta: any = await axios.get(tokenUri)
+                  ?.map(async (token: TokenType) => {
+                    const tokenUri = await nftContract!.uri(token.tokenId)
+                    const response = await axios.get(tokenUri)
+                    const tokenMeta: MetaType = response.data
                     return {
                       id: token.tokenId,
-                      name: tokenMeta.data.name,
-                      image: tokenMeta.data.image,
-                      description: tokenMeta.data.description,
+                      name: tokenMeta.name,
+                      image: tokenMeta.image,
+                      description: tokenMeta.description,
                       ...(includeForSaleInfo && {
                         price: token.price,
                         forSale: token.forSale
@@ -198,30 +194,30 @@ const useWeb3Contracts = (state: any, dispatch: any): any => {
 
   const fetchMarketAssets = useCallback(async () => {
     if (marketAssetsLoading) return
-    let items: any = []
+    let items: AssetType[] = []
 
     dispatch({
       type: 'FETCH_MARKET_ASSETS_START',
     })
 
     try {
-      const tokensIds = await nftContract.fetchTokensIdsBatch(address, zeroAddr)
+      const tokensIds = await nftContract!.fetchTokensIdsBatch(address, zeroAddr)
 
       if (tokensIds.length) {
-        const marketTokens = (await marketContract.fetchTokensBatch(tokensIds))?.filter(({ forSale }: { forSale: boolean }) => forSale)
+        const marketTokens = (await marketContract!.fetchTokensBatch(tokensIds))?.filter(({ forSale }: { forSale: boolean }) => forSale)
 
         const collectionTokensGrouped = groupBy(
           marketTokens.filter(
-            (token: any) => token.collectionId.toString() !== '0',
+            (token: TokenType) => token.collectionId.toString() !== '0',
           ),
-          (token: any) => token.collectionId.toString(),
+          (token: TokenType) => token.collectionId.toString(),
         )
 
         const collectionsIds = Array.from(
           new Set(
             marketTokens
-              .filter((token: any) => token.collectionId.toString() !== '0')
-              .map((token: any) => token.collectionId.toString()),
+              .filter((token: TokenType) => token.collectionId.toString() !== '0')
+              .map((token: TokenType) => token.collectionId.toString()),
           ),
         ) as string[]
 
@@ -229,16 +225,16 @@ const useWeb3Contracts = (state: any, dispatch: any): any => {
 
         const ownerTokensGrouped = groupBy(
           marketTokens.filter(
-            (token: any) => token.collectionId.toString() === '0',
+            (token: TokenType) => token.collectionId.toString() === '0',
           ),
-          (token: any) => token.owner,
+          (token: TokenType) => token.owner,
         )
 
         const owners = Array.from(
           new Set(
             marketTokens
-              .filter((token: any) => token.collectionId.toString() === '0')
-              .map((token: any) => token.owner),
+              .filter((token: TokenType) => token.collectionId.toString() === '0')
+              .map((token: TokenType) => token.owner),
           ),
         ) as string[]
 
@@ -255,16 +251,17 @@ const useWeb3Contracts = (state: any, dispatch: any): any => {
                     : await Promise.all(
                       ownerTokensGrouped
                         .get(owner)
-                        ?.map(async (token: any) => {
-                          const tokenUri = await nftContract.uri(
+                        ?.map(async (token: TokenType) => {
+                          const tokenUri = await nftContract!.uri(
                             token.tokenId,
                           )
-                          const tokenMeta: any = await axios.get(tokenUri)
+                          const response = await axios.get(tokenUri)
+                          const tokenMeta: MetaType = response.data
                           return {
                             id: token.tokenId,
-                            name: tokenMeta.data.name,
-                            image: tokenMeta.data.image,
-                            description: tokenMeta.data.description,
+                            name: tokenMeta.name,
+                            image: tokenMeta.image,
+                            description: tokenMeta.description,
                             price: token.price,
                             acceptOffers: token.forSale,
                           }
@@ -284,13 +281,12 @@ const useWeb3Contracts = (state: any, dispatch: any): any => {
       })
     } catch (e: any) {
       toast.info(e.message)
-      console.warn(e)
     }
   }, [address, dispatch, marketAssetsLoading, marketContract, nftContract, resolveCollectionsTokens])
 
   const fetchOwnersAssets = useCallback(async () => {
     if (ownersAssetsLoading) return
-    let items: any = []
+    let items: AssetType[] = []
 
     dispatch({
       type: 'FETCH_OWNERS_ASSETS_START',
@@ -298,24 +294,24 @@ const useWeb3Contracts = (state: any, dispatch: any): any => {
 
     try {
       const [collectionsIds, tokensIds] = await Promise.all([
-        collectionContract.collectionsIdsByCreator(address),
-        nftContract.fetchTokensIdsBatch(zeroAddr, address),
+        collectionContract!.collectionsIdsByCreator(address),
+        nftContract!.fetchTokensIdsBatch(zeroAddr, address),
       ])
 
-      const ownerTokens = await marketContract.fetchTokensBatch(tokensIds)
+      const ownerTokens = await marketContract!.fetchTokensBatch(tokensIds)
 
       if (collectionsIds.length || ownerTokens.length) {
         const collectionTokensGrouped = groupBy(
           ownerTokens.filter(
-            (token: any) => token.collectionId.toString() !== '0',
+            (token: TokenType) => token.collectionId.toString() !== '0',
           ),
-          (token: any) => token.collectionId.toString(),
+          (token: TokenType) => token.collectionId.toString(),
         )
 
         items = await resolveCollectionsTokens(collectionsIds, collectionTokensGrouped, true, false)
 
         const ownedTokens = ownerTokens.filter(
-          (token: any) => token.collectionId.toString() === '0',
+          (token: TokenType) => token.collectionId.toString() === '0',
         )
 
         if (ownedTokens.length) {
@@ -323,14 +319,15 @@ const useWeb3Contracts = (state: any, dispatch: any): any => {
             id: ownedTokens[0].owner,
             name: ellipseAddress(ownedTokens[0].owner),
             tokens: await Promise.all(
-              ownedTokens.map(async (token: any) => {
-                const tokenUri = await nftContract.uri(token.tokenId)
-                const tokenMeta: any = await axios.get(tokenUri)
+              ownedTokens.map(async (token: TokenType) => {
+                const tokenUri = await nftContract!.uri(token.tokenId)
+                const response = await axios.get(tokenUri)
+                const tokenMeta: MetaType = response.data
                 return {
                   id: token.tokenId,
-                  name: tokenMeta.data.name,
-                  image: tokenMeta.data.image,
-                  description: tokenMeta.data.description,
+                  name: tokenMeta.name,
+                  image: tokenMeta.image,
+                  description: tokenMeta.description,
                   price: token.price,
                   canSale: token.forSale === false,
                   hasOffers: token.offersCount > 0,
@@ -349,7 +346,6 @@ const useWeb3Contracts = (state: any, dispatch: any): any => {
       })
     } catch (e: any) {
       toast.info(e.message)
-      console.warn(e)
     }
   }, [address, collectionContract, dispatch, marketContract, nftContract, ownersAssetsLoading, resolveCollectionsTokens])
 

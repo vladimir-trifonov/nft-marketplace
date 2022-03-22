@@ -48,9 +48,11 @@ Market deployed to: 0x...
 7. Set the React app environment variables in `nft-marketplace\web\.env` with the contract address being deployed.
             
 ```Example
+REACT_APP_INFURA_ID=
 REACT_APP_NFT_CONTRACT_ADDRESS=// The token contract address from `step 5`
 REACT_APP_COLLECTION_CONTRACT_ADDRESS=// The collection contract address from `step 5`
 REACT_APP_MARKET_CONTRACT_ADDRESS=// The market contract address from `step 5`
+GENERATE_SOURCEMAP=false
 ```
 
 8. Start the React App.
