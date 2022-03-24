@@ -27,6 +27,7 @@ export interface NFTEnumerableInterface extends utils.Interface {
     "isApprovedForAll(address,address)": FunctionFragment;
     "isLocked(uint256)": FunctionFragment;
     "lock(uint256)": FunctionFragment;
+    "market()": FunctionFragment;
     "mint(address,uint256)": FunctionFragment;
     "name()": FunctionFragment;
     "owner()": FunctionFragment;
@@ -70,6 +71,7 @@ export interface NFTEnumerableInterface extends utils.Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "lock", values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: "market", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "mint",
     values: [string, BigNumberish]
@@ -148,6 +150,7 @@ export interface NFTEnumerableInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "isLocked", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "lock", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "market", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
@@ -303,8 +306,10 @@ export interface NFTEnumerable extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    market(overrides?: CallOverrides): Promise<[string]>;
+
     mint(
-      to: string,
+      _to: string,
       _tokenId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -431,8 +436,10 @@ export interface NFTEnumerable extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  market(overrides?: CallOverrides): Promise<string>;
+
   mint(
-    to: string,
+    _to: string,
     _tokenId: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -553,8 +560,10 @@ export interface NFTEnumerable extends BaseContract {
 
     lock(tokenId: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
+    market(overrides?: CallOverrides): Promise<string>;
+
     mint(
-      to: string,
+      _to: string,
       _tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -715,8 +724,10 @@ export interface NFTEnumerable extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    market(overrides?: CallOverrides): Promise<BigNumber>;
+
     mint(
-      to: string,
+      _to: string,
       _tokenId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -850,8 +861,10 @@ export interface NFTEnumerable extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    market(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     mint(
-      to: string,
+      _to: string,
       _tokenId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;

@@ -1,0 +1,22 @@
+name: GitHub Actions
+on: [push, pull_request]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    name: Build and test
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: bahmutov/npm-install@v1
+        with:
+          working-directory: sol
+
+      - name: Hardhat tests
+        run: npm t
+        working-directory: sol
+
+      - uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: "./sol/coverage/lcov.info"

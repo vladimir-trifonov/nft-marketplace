@@ -1,4 +1,4 @@
-# NFT Marketplace 
+# NFT Marketplace [![Coverage Status](https://coveralls.io/repos/github/vladimir-trifonov/nft-marketplace/badge.svg?branch=main)](https://coveralls.io/github/vladimir-trifonov/nft-marketplace?branch=main)
 
 # Prerequisites
 1. [Node.js](https://nodejs.org/en/) version >= v16.14.0 

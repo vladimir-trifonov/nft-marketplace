@@ -19,7 +19,9 @@ contract Collection is
         return _collectionsIdsByCreator[_creator];
     }
 
-    function mint(address _to, uint256 _collectionId) public payable {
+    function mint(address _to, uint256 _collectionId) public virtual payable {
+        require(_to != address(0), "Wrong creator");
+        require(collectionIdToCreator[_collectionId] == address(0), "Collection: existing collection");
         super.mint(_msgSender(), _collectionId, 1, "");
 
         _collectionsIdsByCreator[_to].push(_collectionId);
@@ -28,14 +30,17 @@ contract Collection is
 
     function isCreator(uint256 _collectionId, address _creator)
         public
+        virtual
         view
         returns (bool)
     {
+        require(_creator != address(0), "Wrong creator");
         require(collectionIdToCreator[_collectionId] != address(0), "Collection: not existing collection");
         return collectionIdToCreator[_collectionId] == _creator;
     }
 
     function setMinterRole(address account) public virtual onlyOwner {
+        require(account != address(0), "Wrong minter");
         _grantRole(MINTER_ROLE, account);
     }
 

@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract NFT is ERC721Enumerable, Ownable, Utils, NFTLock {
-    address market;
+    address public market;
     string private baseTokenURI;
 
     constructor(string memory _baseTokenURI)
@@ -49,8 +49,8 @@ contract NFT is ERC721Enumerable, Ownable, Utils, NFTLock {
         _unlock(tokenId);
     }
 
-    function mint(address to, uint256 _tokenId) public virtual onlyMarket {
-        _mint(to, _tokenId);
+    function mint(address _to, uint256 _tokenId) public virtual onlyMarket {
+        _mint(_to, _tokenId);
     }
 
     function transferFrom(
