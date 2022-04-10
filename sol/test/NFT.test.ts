@@ -27,12 +27,12 @@ describe("NFT", function () {
     nft = await nftFactory.deploy("mock_uri");
   });
 
-  it("Should set market", async function () {
-    await nft.connect(accounts[0]).setMarket(market);
-    expect(await nft.market()).to.be.equals(market);
-  });
-
   context("setMarket", () => {
+    it("Should set market", async function () {
+      await nft.connect(accounts[0]).setMarket(market);
+      expect(await nft.market()).to.be.equals(market);
+    });
+
     it("Should be reverted on wrong market", async function () {
       await expect(
         nft.connect(accounts[0]).setMarket(zeroAddress)

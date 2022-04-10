@@ -16,7 +16,7 @@ contract Market is ReentrancyGuard, Ownable, Utils, IMarket, ERC1155Holder {
     address collection;
     address token;
     uint256 lockedAmount = 0;
-    uint256 TOKEN_PRICE = 0.005 ether;
+    uint256 public TOKEN_PRICE = 0.005 ether;
 
     mapping(uint256 => Token) private tokenIdToToken;
     mapping(uint256 => Offer[]) private tokenIdToOffers;
@@ -57,6 +57,7 @@ contract Market is ReentrancyGuard, Ownable, Utils, IMarket, ERC1155Holder {
         override
         nonReentrant
     {
+        require(_collectionId != 0, "Marketplace: wrong collection id");
         ICollecion(collection).mint(msg.sender, _collectionId);
 
         emit CollectionCreated(msg.sender, _collectionId);

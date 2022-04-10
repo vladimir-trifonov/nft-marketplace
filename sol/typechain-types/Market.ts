@@ -66,6 +66,7 @@ export declare namespace Counters {
 export interface MarketInterface extends utils.Interface {
   contractName: "Market";
   functions: {
+    "TOKEN_PRICE()": FunctionFragment;
     "acceptOffer(uint256,uint256)": FunctionFragment;
     "buyToken(uint256,uint256)": FunctionFragment;
     "createCollection(uint256)": FunctionFragment;
@@ -84,6 +85,10 @@ export interface MarketInterface extends utils.Interface {
     "withdraw()": FunctionFragment;
   };
 
+  encodeFunctionData(
+    functionFragment: "TOKEN_PRICE",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "acceptOffer",
     values: [BigNumberish, BigNumberish]
@@ -143,6 +148,10 @@ export interface MarketInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "withdraw", values?: undefined): string;
 
+  decodeFunctionResult(
+    functionFragment: "TOKEN_PRICE",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "acceptOffer",
     data: BytesLike
@@ -315,6 +324,8 @@ export interface Market extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    TOKEN_PRICE(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     acceptOffer(
       _tokenId: BigNumberish,
       _offerId: BigNumberish,
@@ -402,6 +413,8 @@ export interface Market extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
+
+  TOKEN_PRICE(overrides?: CallOverrides): Promise<BigNumber>;
 
   acceptOffer(
     _tokenId: BigNumberish,
@@ -491,6 +504,8 @@ export interface Market extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    TOKEN_PRICE(overrides?: CallOverrides): Promise<BigNumber>;
+
     acceptOffer(
       _tokenId: BigNumberish,
       _offerId: BigNumberish,
@@ -660,6 +675,8 @@ export interface Market extends BaseContract {
   };
 
   estimateGas: {
+    TOKEN_PRICE(overrides?: CallOverrides): Promise<BigNumber>;
+
     acceptOffer(
       _tokenId: BigNumberish,
       _offerId: BigNumberish,
@@ -749,6 +766,8 @@ export interface Market extends BaseContract {
   };
 
   populateTransaction: {
+    TOKEN_PRICE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     acceptOffer(
       _tokenId: BigNumberish,
       _offerId: BigNumberish,
